@@ -306,8 +306,15 @@ function sortSheetByDate(sheet) {
 function renumberSlNumbers(sheet) {
   if (!sheet || sheet.getLastRow() <= 1) return;
   
+  console.log('Renumbering SL numbers for sheet:', sheet.getName());
   const lastRow = sheet.getLastRow();
+  
+  // Update SL numbers sequentially starting from 1
   for (let i = 2; i <= lastRow; i++) {
-    sheet.getRange(i, 2).setValue(i - 1); // SL No is column 2
+    const newSlNo = i - 1;
+    sheet.getRange(i, 2).setValue(newSlNo);
+    console.log('Set row', i, 'SL No to:', newSlNo);
   }
+  
+  console.log('Finished renumbering sheet:', sheet.getName());
 }
