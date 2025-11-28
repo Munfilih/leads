@@ -8,6 +8,10 @@ interface LeadDetailModalProps {
 }
 
 export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose }) => {
+  if (!lead) {
+    return null;
+  }
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -39,7 +43,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
                   <p className="font-medium text-slate-900">{lead.phone}</p>
                 </div>
                 <a
-                  href={`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}`}
+                  href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
@@ -61,15 +65,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
                 <Calendar className="text-slate-400" size={20} />
                 <div>
                   <p className="text-sm text-slate-500">Date & Time</p>
-                  <p className="font-medium text-slate-900">{new Date(lead.dateTime).toLocaleString('en-US', {
-                    weekday: 'short',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true
-                  })}</p>
+                  <p className="font-medium text-slate-900">{lead.dateTime || 'N/A'}</p>
                 </div>
               </div>
             </div>
