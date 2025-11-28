@@ -104,7 +104,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
       </div>
 
       {/* Desktop Table View */}
-      <div className="hidden md:block bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-slate-500">
             <thead className="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-100">
@@ -196,8 +196,8 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
         </div>
       </div>
 
-      {/* Mobile Card View */}
-      <div className="md:hidden space-y-4">
+      {/* Mobile & Tablet Card View */}
+      <div className="lg:hidden space-y-4">
         {filteredLeads.length > 0 ? (
           filteredLeads.map((lead) => (
             <div 
@@ -256,7 +256,14 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                 {lead.dateTime && (
                   <div className="flex justify-between">
                     <span className="text-slate-500">Date:</span>
-                    <span>{new Date(lead.dateTime).toLocaleDateString()}</span>
+                    <span>{new Date(lead.dateTime).toLocaleString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</span>
                   </div>
                 )}
               </div>
