@@ -10,7 +10,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
   const stats = {
     total: leads.length,
     new: leads.filter(l => l.currentStatus === LeadStatus.NEW).length,
-    hot: leads.filter(l => l.leadQuality === LeadCategory.HOT).length,
+    genuine: leads.filter(l => l.leadQuality === LeadCategory.HOT).length,
     won: leads.filter(l => l.currentStatus === LeadStatus.WON).length,
     qualified: leads.filter(l => l.currentStatus === LeadStatus.QUALIFIED).length,
     contacted: leads.filter(l => l.currentStatus === LeadStatus.CONTACTED).length,
@@ -69,12 +69,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Hot Leads</p>
-              <p className="text-2xl font-bold text-red-600">{stats.hot}</p>
-              <p className="text-xs text-slate-400 mt-1">Immediate attention</p>
+              <p className="text-sm font-medium text-slate-500">Genuine Leads</p>
+              <p className="text-2xl font-bold text-green-600">{stats.genuine}</p>
+              <p className="text-xs text-slate-400 mt-1">High quality leads</p>
             </div>
-            <div className="p-3 bg-red-100 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
+            <div className="p-3 bg-green-100 rounded-lg">
+              <AlertTriangle className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </div>
@@ -268,11 +268,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
               const teamStats = leads.reduce((acc, lead) => {
                 const team = lead.forwardedTo || 'Unassigned';
                 if (!acc[team]) {
-                  acc[team] = { total: 0, won: 0, hot: 0 };
+                  acc[team] = { total: 0, won: 0, genuine: 0 };
                 }
                 acc[team].total++;
                 if (lead.currentStatus === LeadStatus.WON) acc[team].won++;
-                if (lead.leadQuality === LeadCategory.HOT) acc[team].hot++;
+                if (lead.leadQuality === LeadCategory.HOT) acc[team].genuine++;
                 return acc;
               }, {} as Record<string, { total: number; won: number; hot: number }>);
 
@@ -289,7 +289,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-green-600">{stats.won} won ({winRate}%)</span>
-                        <span className="text-red-600">{stats.hot} hot</span>
+                        <span className="text-green-600">{stats.genuine} genuine</span>
                       </div>
                     </div>
                   );
