@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Lead, LeadStatus, LeadCategory } from '../types';
 import { Users, UserCheck, AlertTriangle, TrendingUp, MapPin, Building, Award, Clock, Target } from 'lucide-react';
+import { PlaceFilterModal } from './PlaceFilterModal';
+import { CountryFilterModal } from './CountryFilterModal';
+import { QualityFilterModal } from './QualityFilterModal';
+import { TeamFilterModal } from './TeamFilterModal';
+import { StatusFilterModal } from './StatusFilterModal';
+import { HourFilterModal } from './HourFilterModal';
+
 
 interface DashboardProps {
   leads: Lead[];
+  onFilterByPlace?: (place: string) => void;
+  onFilterByCountry?: (country: string) => void;
+  onFilterByQuality?: (quality: string) => void;
+  onFilterByTeam?: (team: string) => void;
+  onFilterByStatus?: (status: string) => void;
+  onFilterByHour?: (hour: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, onFilterByCountry, onFilterByQuality, onFilterByTeam, onFilterByStatus, onFilterByHour }) => {
+  const [showPlaceModal, setShowPlaceModal] = useState(false);
+  const [showCountryModal, setShowCountryModal] = useState(false);
+  const [showQualityModal, setShowQualityModal] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showHourModal, setShowHourModal] = useState(false);
   const stats = {
     total: leads.length,
     new: leads.filter(l => l.currentStatus === LeadStatus.NEW).length,
@@ -29,7 +48,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
   // Top countries
   const countryStats = leads.reduce((acc, lead) => {
     if (lead.country) {
-      acc[lead.country] = (acc[lead.country] || 0) + 1;
+      const trimmedCountry = lead.country.trim();
+      acc[trimmedCountry] = (acc[trimmedCountry] || 0) + 1;
     }
     return acc;
   }, {} as Record<string, number>);
@@ -40,7 +60,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
   // Industry distribution
   const industryStats = leads.reduce((acc, lead) => {
     if (lead.businessIndustry) {
-      acc[lead.businessIndustry] = (acc[lead.businessIndustry] || 0) + 1;
+      const trimmedIndustry = lead.businessIndustry.trim();
+      acc[trimmedIndustry] = (acc[trimmedIndustry] || 0) + 1;
     }
     return acc;
   }, {} as Record<string, number>);
@@ -110,7 +131,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
       {/* Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lead Pipeline */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={(e) => {
+            e.preventDefault();
+            setShowStatusModal(true);
+          }}
+        >
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <Award className="w-5 h-5" />
             Lead Pipeline
@@ -156,7 +183,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
         </div>
 
         {/* Top Places */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={(e) => {
+            e.preventDefault();
+            console.log('Top Places clicked');
+            setShowPlaceModal(true);
+          }}
+        >
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <MapPin className="w-5 h-5" />
             Top Places
@@ -165,7 +199,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
             {(() => {
               const placeStats = leads.reduce((acc, lead) => {
                 if (lead.place) {
-                  acc[lead.place] = (acc[lead.place] || 0) + 1;
+                  const trimmedPlace = lead.place.trim();
+                  acc[trimmedPlace] = (acc[trimmedPlace] || 0) + 1;
                 }
                 return acc;
               }, {} as Record<string, number>);
@@ -191,7 +226,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
         </div>
 
         {/* Top Countries */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={(e) => {
+            e.preventDefault();
+            setShowCountryModal(true);
+          }}
+        >
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <Building className="w-5 h-5" />
             Top Countries
@@ -217,22 +258,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
       {/* Time & Team Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lead Quality */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={(e) => {
+            e.preventDefault();
+            setShowQualityModal(true);
+          }}
+        >
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <Target className="w-5 h-5" />
             Lead Quality
           </h3>
           <div className="space-y-3">
             {(() => {
-              const qualityStats = {
-                'GENUINE': leads.filter(l => l.leadQuality === 'Genuine' || l.leadQuality === 'GENUINE').length,
-                'TO BE RESPONDED': leads.filter(l => l.leadQuality === 'TO BE RESPONDED').length,
-                'AGENT': leads.filter(l => l.leadQuality === 'AGENT').length,
-                'UNCATEGORIZED': leads.filter(l => l.leadQuality === 'UNCATEGORIZED').length,
-                'WARM': leads.filter(l => l.leadQuality === 'WARM').length,
-                'COLD': leads.filter(l => l.leadQuality === 'COLD').length,
-                'FAKE': leads.filter(l => l.leadQuality === 'FAKE').length
-              };
+              const qualityStats = leads.reduce((acc, lead) => {
+                if (lead.leadQuality) {
+                  const trimmedQuality = lead.leadQuality.trim();
+                  acc[trimmedQuality] = (acc[trimmedQuality] || 0) + 1;
+                }
+                return acc;
+              }, {} as Record<string, number>);
               
               return Object.entries(qualityStats)
                 .filter(([, count]) => count > 0)
@@ -246,7 +291,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
           </div>
         </div>
         {/* Peak Hours */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={(e) => {
+            e.preventDefault();
+            setShowHourModal(true);
+          }}
+        >
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <Clock className="w-5 h-5" />
             Peak Engagement Hours
@@ -254,8 +305,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
           <div className="space-y-3">
             {(() => {
               const hourStats = leads.reduce((acc, lead) => {
-                if (lead.dateTime) {
-                  const hour = new Date(lead.dateTime).getHours();
+                if (lead.dateTime && lead.dateTime.trim()) {
+                  const hour = new Date(lead.dateTime.trim()).getHours();
                   acc[hour] = (acc[hour] || 0) + 1;
                 }
                 return acc;
@@ -288,7 +339,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
         </div>
 
         {/* Team Performance */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={(e) => {
+            e.preventDefault();
+            setShowTeamModal(true);
+          }}
+        >
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <UserCheck className="w-5 h-5" />
             Team Distribution
@@ -296,7 +353,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
           <div className="space-y-3">
             {(() => {
               const teamStats = leads.reduce((acc, lead) => {
-                const team = lead.forwardedTo || 'Unassigned';
+                const team = (lead.forwardedTo || 'Unassigned').trim();
                 if (!acc[team]) {
                   acc[team] = { total: 0, won: 0, genuine: 0 };
                 }
@@ -393,6 +450,50 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
           </div>
         </div>
       </div>
+      
+      <PlaceFilterModal
+        isOpen={showPlaceModal}
+        onClose={() => setShowPlaceModal(false)}
+        leads={leads}
+        onSelectPlace={(place) => onFilterByPlace && onFilterByPlace(place)}
+      />
+      
+      <CountryFilterModal
+        isOpen={showCountryModal}
+        onClose={() => setShowCountryModal(false)}
+        leads={leads}
+        onSelectCountry={(country) => onFilterByCountry && onFilterByCountry(country)}
+      />
+      
+      <QualityFilterModal
+        isOpen={showQualityModal}
+        onClose={() => setShowQualityModal(false)}
+        leads={leads}
+        onSelectQuality={(quality) => onFilterByQuality && onFilterByQuality(quality)}
+      />
+      
+      <TeamFilterModal
+        isOpen={showTeamModal}
+        onClose={() => setShowTeamModal(false)}
+        leads={leads}
+        onSelectTeam={(team) => onFilterByTeam && onFilterByTeam(team)}
+      />
+      
+      <StatusFilterModal
+        isOpen={showStatusModal}
+        onClose={() => setShowStatusModal(false)}
+        leads={leads}
+        onSelectStatus={(status) => onFilterByStatus && onFilterByStatus(status)}
+      />
+      
+      <HourFilterModal
+        isOpen={showHourModal}
+        onClose={() => setShowHourModal(false)}
+        leads={leads}
+        onSelectHour={(hour) => onFilterByHour && onFilterByHour(hour)}
+      />
+      
+
     </div>
   );
 };

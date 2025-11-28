@@ -22,6 +22,12 @@ const AppContent: React.FC = () => {
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [sheetNames, setSheetNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [placeFilter, setPlaceFilter] = useState<string>('');
+  const [countryFilter, setCountryFilter] = useState<string>('');
+  const [qualityFilter, setQualityFilter] = useState<string>('');
+  const [teamFilter, setTeamFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [hourFilter, setHourFilter] = useState<string>('');
 
   // Auto-switch to dashboard when admin mode is disabled
   React.useEffect(() => {
@@ -132,8 +138,36 @@ const AppContent: React.FC = () => {
           ) : (
             <>
               {activeTab === 'form' && isAdminMode && <LeadForm onSave={handleUpdateLead} />}
-              {activeTab === 'dashboard' && <Dashboard leads={leads} />}
-              {activeTab === 'leads' && <LeadList leads={leads} onSelectLead={setSelectedLead} onEditLead={isAdminMode ? setEditingLead : undefined} onDeleteLead={isAdminMode ? handleDeleteLead : undefined} sheetNames={sheetNames} />}
+              {activeTab === 'dashboard' && (
+                <Dashboard 
+                  leads={leads} 
+                  onFilterByPlace={(place) => {
+                    setPlaceFilter(place);
+                    setActiveTab('leads');
+                  }}
+                  onFilterByCountry={(country) => {
+                    setCountryFilter(country);
+                    setActiveTab('leads');
+                  }}
+                  onFilterByQuality={(quality) => {
+                    setQualityFilter(quality);
+                    setActiveTab('leads');
+                  }}
+                  onFilterByTeam={(team) => {
+                    setTeamFilter(team);
+                    setActiveTab('leads');
+                  }}
+                  onFilterByStatus={(status) => {
+                    setStatusFilter(status);
+                    setActiveTab('leads');
+                  }}
+                  onFilterByHour={(hour) => {
+                    setHourFilter(hour);
+                    setActiveTab('leads');
+                  }} 
+                />
+              )}
+              {activeTab === 'leads' && <LeadList leads={leads} onSelectLead={setSelectedLead} onEditLead={isAdminMode ? setEditingLead : undefined} onDeleteLead={isAdminMode ? handleDeleteLead : undefined} sheetNames={sheetNames} placeFilter={placeFilter} onClearPlaceFilter={() => setPlaceFilter('')} countryFilter={countryFilter} onClearCountryFilter={() => setCountryFilter('')} qualityFilter={qualityFilter} onClearQualityFilter={() => setQualityFilter('')} teamFilter={teamFilter} onClearTeamFilter={() => setTeamFilter('')} statusFilter={statusFilter} onClearStatusFilter={() => setStatusFilter('')} hourFilter={hourFilter} onClearHourFilter={() => setHourFilter('')} />}
               {activeTab === 'settings' && isAdminMode && <Settings />}
               {activeTab === 'sheets' && isAdminMode && (
                 <iframe 

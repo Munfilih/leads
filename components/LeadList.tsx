@@ -10,22 +10,58 @@ interface LeadListProps {
   onAddLead?: () => void;
   onDeleteLead?: (leadId: string) => void;
   sheetNames?: string[];
+  placeFilter?: string;
+  onClearPlaceFilter?: () => void;
+  countryFilter?: string;
+  onClearCountryFilter?: () => void;
+  qualityFilter?: string;
+  onClearQualityFilter?: () => void;
+  teamFilter?: string;
+  onClearTeamFilter?: () => void;
+  statusFilter?: string;
+  onClearStatusFilter?: () => void;
+  hourFilter?: string;
+  onClearHourFilter?: () => void;
 }
 
-export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditLead, onAddLead, onDeleteLead, sheetNames = [] }) => {
+export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditLead, onAddLead, onDeleteLead, sheetNames = [], placeFilter, onClearPlaceFilter, countryFilter, onClearCountryFilter, qualityFilter, onClearQualityFilter, teamFilter, onClearTeamFilter, statusFilter, onClearStatusFilter, hourFilter, onClearHourFilter }) => {
   const [filter, setFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState<LeadStatus | 'ALL'>('ALL');
+  const [localStatusFilter, setLocalStatusFilter] = useState<LeadStatus | 'ALL'>('ALL');
   const [sheetFilter, setSheetFilter] = useState<string>('ALL');
   const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>('oldest');
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; leadId: string; leadName: string }>({ isOpen: false, leadId: '', leadName: '' });
 
   const filteredLeads = leads.filter(lead => {
-    const matchesText = (lead.name || '').toLowerCase().includes(filter.toLowerCase()) || 
-                        lead.phone.includes(filter) ||
-                        (lead.specialNotes || '').toLowerCase().includes(filter.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || lead.currentStatus === statusFilter;
-    const matchesSheet = sheetFilter === 'ALL' || lead.forwardedTo === sheetFilter || (sheetFilter === 'Unassigned' && !lead.forwardedTo);
-    return matchesText && matchesStatus && matchesSheet;
+    try {
+      const searchTerm = filter.toLowerCase();
+      const matchesText = (lead.name || '').toLowerCase().includes(searchTerm) || 
+                          (lead.phone || '').toString().includes(searchTerm) ||
+                          (lead.specialNotes || '').toLowerCase().includes(searchTerm) ||
+                          (lead.country || '').toLowerCase().includes(searchTerm) ||
+                          (lead.place || '').toLowerCase().includes(searchTerm) ||
+                          (lead.leadQuality || '').toLowerCase().includes(searchTerm) ||
+                          (lead.businessIndustry || '').toLowerCase().includes(searchTerm) ||
+                          (lead.currentStatus || '').toLowerCase().includes(searchTerm) ||
+                          (lead.forwardedTo || '').toLowerCase().includes(searchTerm) ||
+                          (lead.slNo || '').toString().includes(searchTerm);
+      const matchesStatus = localStatusFilter === 'ALL' || lead.currentStatus === localStatusFilter;
+      const matchesSheet = sheetFilter === 'ALL' || lead.forwardedTo === sheetFilter || (sheetFilter === 'Unassigned' && !lead.forwardedTo);
+      const matchesPlace = !placeFilter || (lead.place || '').toLowerCase().trim() === placeFilter.toLowerCase().trim();
+      const matchesCountry = !countryFilter || (lead.country || '').toLowerCase().trim() === countryFilter.toLowerCase().trim();
+      const matchesQuality = !qualityFilter || (lead.leadQuality || '').toString().toLowerCase().trim() === qualityFilter.toLowerCase().trim();
+      const matchesTeam = !teamFilter || (lead.forwardedTo || 'Unassigned').toLowerCase().trim() === teamFilter.toLowerCase().trim();
+      const matchesStatusFilter = !statusFilter || (lead.currentStatus || '').trim() === statusFilter.trim();
+      const matchesHour = !hourFilter || (() => {
+        if (!lead.dateTime) return false;
+        const hour = new Date(lead.dateTime.trim()).getHours();
+        const timeRange = `${hour.toString().padStart(2, '0')}:00 - ${(hour + 1).toString().padStart(2, '0')}:00`;
+        return timeRange === hourFilter;
+      })();
+      return matchesText && matchesStatus && matchesSheet && matchesPlace && matchesCountry && matchesQuality && matchesTeam && matchesStatusFilter && matchesHour;
+    } catch (error) {
+      console.error('Filter error:', error);
+      return true;
+    }
   }).sort((a, b) => {
     const dateA = new Date(a.dateTime || 0);
     const dateB = new Date(b.dateTime || 0);
@@ -63,6 +99,84 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
 
   return (
     <div className="space-y-4">
+      {placeFilter && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
+          <span className="text-blue-800 text-sm">
+            Filtered by place: <strong>{placeFilter}</strong>
+          </span>
+          <button
+            onClick={onClearPlaceFilter}
+            className="text-blue-600 hover:text-blue-800 text-sm underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
+      {countryFilter && (
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between">
+          <span className="text-purple-800 text-sm">
+            Filtered by country: <strong>{countryFilter}</strong>
+          </span>
+          <button
+            onClick={onClearCountryFilter}
+            className="text-purple-600 hover:text-purple-800 text-sm underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
+      {qualityFilter && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+          <span className="text-green-800 text-sm">
+            Filtered by quality: <strong>{qualityFilter}</strong>
+          </span>
+          <button
+            onClick={onClearQualityFilter}
+            className="text-green-600 hover:text-green-800 text-sm underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
+      {teamFilter && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center justify-between">
+          <span className="text-orange-800 text-sm">
+            Filtered by team: <strong>{teamFilter}</strong>
+          </span>
+          <button
+            onClick={onClearTeamFilter}
+            className="text-orange-600 hover:text-orange-800 text-sm underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
+      {statusFilter && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center justify-between">
+          <span className="text-red-800 text-sm">
+            Filtered by status: <strong>{statusFilter}</strong>
+          </span>
+          <button
+            onClick={onClearStatusFilter}
+            className="text-red-600 hover:text-red-800 text-sm underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
+      {hourFilter && (
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 flex items-center justify-between">
+          <span className="text-indigo-800 text-sm">
+            Filtered by hour: <strong>{hourFilter}</strong>
+          </span>
+          <button
+            onClick={onClearHourFilter}
+            className="text-indigo-600 hover:text-indigo-800 text-sm underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -79,8 +193,8 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
             <Filter size={18} className="text-slate-400" />
             <select
                 className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as LeadStatus | 'ALL')}
+                value={localStatusFilter}
+                onChange={(e) => setLocalStatusFilter(e.target.value as LeadStatus | 'ALL')}
             >
                 <option value="ALL">All Status</option>
                 {Object.values(LeadStatus).map(s => (
