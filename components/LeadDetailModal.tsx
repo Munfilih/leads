@@ -1,6 +1,6 @@
 import React from 'react';
 import { Lead } from '../types';
-import { X, Phone, MapPin, User, Calendar, Building, FileText, Target, Forward } from 'lucide-react';
+import { X, Phone, MapPin, User, Calendar, Building, FileText, Target, Forward, MessageCircle } from 'lucide-react';
 
 interface LeadDetailModalProps {
   lead: Lead;
@@ -34,10 +34,19 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
               
               <div className="flex items-center gap-3">
                 <Phone className="text-slate-400" size={20} />
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-slate-500">Phone</p>
                   <p className="font-medium text-slate-900">{lead.phone}</p>
                 </div>
+                <a
+                  href={`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
+                  title="Open WhatsApp Chat"
+                >
+                  <MessageCircle size={18} />
+                </a>
               </div>
               
               <div className="flex items-center gap-3">

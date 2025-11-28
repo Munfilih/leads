@@ -16,6 +16,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
   const [filter, setFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'ALL'>('ALL');
   const [sheetFilter, setSheetFilter] = useState<string>('ALL');
+  const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>('oldest');
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; leadId: string; leadName: string }>({ isOpen: false, leadId: '', leadName: '' });
 
   const filteredLeads = leads.filter(lead => {
@@ -28,7 +29,9 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
   }).sort((a, b) => {
     const dateA = new Date(a.dateTime || 0);
     const dateB = new Date(b.dateTime || 0);
-    return dateB.getTime() - dateA.getTime(); // Sort newest first
+    return sortOrder === 'oldest' 
+      ? dateA.getTime() - dateB.getTime() // Oldest first
+      : dateB.getTime() - dateA.getTime(); // Newest first
   });
 
   const getStatusBadge = (status: LeadStatus) => {
@@ -94,6 +97,14 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                 {sheetNames.filter(sheet => sheet !== 'All leads' && sheet !== 'Settings').map(sheet => (
                     <option key={sheet} value={sheet}>{sheet}</option>
                 ))}
+            </select>
+            <select
+                className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'oldest' | 'newest')}
+            >
+                <option value="oldest">Oldest First</option>
+                <option value="newest">Newest First</option>
             </select>
             {onAddLead && (
               <button

@@ -14,6 +14,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
     won: leads.filter(l => l.currentStatus === LeadStatus.WON).length,
     qualified: leads.filter(l => l.currentStatus === LeadStatus.QUALIFIED).length,
     contacted: leads.filter(l => l.currentStatus === LeadStatus.CONTACTED).length,
+    forwarded: leads.filter(l => l.forwardedTo && l.forwardedTo !== '').length,
   };
 
   // Recent activity (last 7 days)
@@ -47,7 +48,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
     .sort(([,a], [,b]) => b - a)
     .slice(0, 5);
 
-  const conversionRate = stats.total > 0 ? ((stats.won / stats.total) * 100).toFixed(1) : '0';
+  const forwardRate = stats.total > 0 ? ((stats.forwarded / stats.total) * 100).toFixed(1) : '0';
 
   return (
     <div className="space-y-6">
@@ -82,9 +83,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Conversion Rate</p>
-              <p className="text-2xl font-bold text-emerald-600">{conversionRate}%</p>
-              <p className="text-xs text-slate-400 mt-1">{stats.won} won deals</p>
+              <p className="text-sm font-medium text-slate-500">Forward Rate</p>
+              <p className="text-2xl font-bold text-emerald-600">{forwardRate}%</p>
+              <p className="text-xs text-slate-400 mt-1">{stats.forwarded} forwarded leads</p>
             </div>
             <div className="p-3 bg-emerald-100 rounded-lg">
               <TrendingUp className="w-6 h-6 text-emerald-600" />
@@ -209,6 +210,71 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
             )) : (
               <p className="text-sm text-slate-400">No country data available</p>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Day-wise Leads Graph */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">Daily Leads Trend</h3>
+        <div className="h-64">
+          {(() => {
+            const last7Days = Array.from({length: 7}, (_, i) => {
+              const date = new Date();
+              date.setDate(date.getDate() - (6 - i));
+              return date;
+            });
+            
+            const dailyStats = last7Days.map(date => {
+              const dayLeads = leads.filter(lead => {
+                if (!lead.dateTime) return false;
+                const leadDate = new Date(lead.dateTime);
+                return leadDate.toDateString() === date.toDateString();
+              });
+              
+              return {
+                day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                date: date.getDate(),
+                total: dayLeads.length,
+                forwarded: dayLeads.filter(l => l.forwardedTo && l.forwardedTo !== '').length
+              };
+            });
+            
+            const maxCount = Math.max(...dailyStats.map(d => d.total), 1);
+            
+            return (
+              <div className="flex items-end justify-between h-full gap-2">
+                {dailyStats.map((day, index) => (
+                  <div key={index} className="flex flex-col items-center flex-1">
+                    <div className="flex flex-col items-center justify-end h-48 mb-2">
+                      <div className="text-xs text-slate-600 mb-1">{day.total}</div>
+                      <div 
+                        className="bg-indigo-500 rounded-t w-8 min-h-[4px]"
+                        style={{ height: `${(day.total / maxCount) * 180}px` }}
+                      />
+                      <div 
+                        className="bg-emerald-500 rounded-t w-8 min-h-[2px] -mt-1"
+                        style={{ height: `${(day.forwarded / maxCount) * 180}px` }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-500 text-center">
+                      <div>{day.day}</div>
+                      <div>{day.date}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
+        <div className="flex justify-center gap-4 mt-4 text-xs">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-indigo-500 rounded"></div>
+            <span>Total Leads</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-emerald-500 rounded"></div>
+            <span>Forwarded</span>
           </div>
         </div>
       </div>
