@@ -238,10 +238,10 @@ function updateOrInsertRow(sheet, uid, data) {
   // Insert new row if UID not found
   sheet.appendRow(data);
   
-  // Sort by date column (last column) - newest first
-  const range = sheet.getDataRange();
-  if (range.getNumRows() > 1) {
-    const dateColumn = range.getNumColumns(); // Last column is date
+  // Sort by date column (last column) - newest first, skip header row
+  const range = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn());
+  if (range.getNumRows() > 0) {
+    const dateColumn = sheet.getLastColumn(); // Last column is date
     range.sort([{column: dateColumn, ascending: false}]);
   }
 }
