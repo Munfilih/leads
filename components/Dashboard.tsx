@@ -1,6 +1,6 @@
 import React from 'react';
 import { Lead, LeadStatus, LeadCategory } from '../types';
-import { Users, UserCheck, AlertTriangle, TrendingUp, MapPin, Building, Award, Clock } from 'lucide-react';
+import { Users, UserCheck, AlertTriangle, TrendingUp, MapPin, Building, Award, Clock, Target } from 'lucide-react';
 
 interface DashboardProps {
   leads: Lead[];
@@ -155,42 +155,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
           </div>
         </div>
 
-        {/* Lead Quality Distribution */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <Target className="w-5 h-5" />
-            Lead Quality
-          </h3>
-          <div className="space-y-3">
-            {(() => {
-              const qualityStats = leads.reduce((acc, lead) => {
-                if (lead.leadQuality) {
-                  acc[lead.leadQuality] = (acc[lead.leadQuality] || 0) + 1;
-                }
-                return acc;
-              }, {} as Record<string, number>);
-              
-              const topQualities = Object.entries(qualityStats)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 5);
-              
-              return topQualities.length > 0 ? topQualities.map(([quality, count]) => (
-                <div key={quality} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-700">{quality}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-16 bg-slate-200 rounded-full h-2">
-                      <div className="bg-indigo-500 h-2 rounded-full" style={{width: `${(count/stats.total)*100}%`}}></div>
-                    </div>
-                    <span className="text-sm font-bold text-slate-900 w-8">{count}</span>
-                  </div>
-                </div>
-              )) : (
-                <p className="text-sm text-slate-400">No quality data available</p>
-              );
-            })()}
-          </div>
-        </div>
-
         {/* Top Places */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
@@ -251,7 +215,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
       </div>
 
       {/* Time & Team Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Lead Quality */}
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <Target className="w-5 h-5" />
+            Lead Quality
+          </h3>
+          <div className="space-y-3">
+            {(() => {
+              const qualityStats = {
+                'GENUINE': leads.filter(l => l.leadQuality === 'Genuine' || l.leadQuality === 'GENUINE').length,
+                'TO BE RESPONDED': leads.filter(l => l.leadQuality === 'TO BE RESPONDED').length,
+                'AGENT': leads.filter(l => l.leadQuality === 'AGENT').length,
+                'UNCATEGORIZED': leads.filter(l => l.leadQuality === 'UNCATEGORIZED').length,
+                'WARM': leads.filter(l => l.leadQuality === 'WARM').length,
+                'COLD': leads.filter(l => l.leadQuality === 'COLD').length,
+                'FAKE': leads.filter(l => l.leadQuality === 'FAKE').length
+              };
+              
+              return Object.entries(qualityStats)
+                .filter(([, count]) => count > 0)
+                .map(([quality, count]) => (
+                  <div key={quality} className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-slate-700">{quality}</span>
+                    <span className="text-sm font-bold text-slate-900">{count}</span>
+                  </div>
+                ));
+            })()}
+          </div>
+        </div>
         {/* Peak Hours */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
