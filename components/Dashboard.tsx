@@ -155,6 +155,42 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
           </div>
         </div>
 
+        {/* Lead Quality Distribution */}
+        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <Target className="w-5 h-5" />
+            Lead Quality
+          </h3>
+          <div className="space-y-3">
+            {(() => {
+              const qualityStats = leads.reduce((acc, lead) => {
+                if (lead.leadQuality) {
+                  acc[lead.leadQuality] = (acc[lead.leadQuality] || 0) + 1;
+                }
+                return acc;
+              }, {} as Record<string, number>);
+              
+              const topQualities = Object.entries(qualityStats)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+              
+              return topQualities.length > 0 ? topQualities.map(([quality, count]) => (
+                <div key={quality} className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-700">{quality}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 bg-slate-200 rounded-full h-2">
+                      <div className="bg-indigo-500 h-2 rounded-full" style={{width: `${(count/stats.total)*100}%`}}></div>
+                    </div>
+                    <span className="text-sm font-bold text-slate-900 w-8">{count}</span>
+                  </div>
+                </div>
+              )) : (
+                <p className="text-sm text-slate-400">No quality data available</p>
+              );
+            })()}
+          </div>
+        </div>
+
         {/* Top Places */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
