@@ -14,7 +14,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave }) => {
   const [formData, setFormData] = useState<Lead>({
     id: `new-${Date.now()}`,
     uid: `uid-${Date.now()}`,
-    dateTime: new Date().toISOString().slice(0, 16),
+    dateTime: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
     slNo: '',
     phone: '',
     country: '',
@@ -62,7 +62,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave }) => {
     setFormData({
       id: `new-${Date.now()}`,
       uid: `uid-${Date.now()}`,
-      dateTime: new Date().toISOString().slice(0, 16),
+      dateTime: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
       slNo: '',
       phone: '',
       country: '',
