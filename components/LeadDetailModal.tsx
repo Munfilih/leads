@@ -8,29 +8,9 @@ interface LeadDetailModalProps {
 }
 
 export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose }) => {
-  const [showWhatsAppOptions, setShowWhatsAppOptions] = React.useState(false);
-  
   if (!lead) {
     return null;
   }
-  
-  const openWhatsApp = (type: 'normal' | 'business') => {
-    const cleanPhone = String(lead.phone || '').replace(/[^0-9]/g, '');
-    const url = type === 'business' 
-      ? `https://wa.me/${cleanPhone}` // WhatsApp Business
-      : `whatsapp://send?phone=${cleanPhone}`; // WhatsApp App
-    
-    if (type === 'normal') {
-      // Try app first, fallback to web
-      window.location.href = `whatsapp://send?phone=${cleanPhone}`;
-      setTimeout(() => {
-        window.open(`https://web.whatsapp.com/send?phone=${cleanPhone}`, '_blank');
-      }, 1000);
-    } else {
-      window.open(url, '_blank');
-    }
-    setShowWhatsAppOptions(false);
-  };
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -62,32 +42,15 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
                   <p className="text-sm text-slate-500">Phone</p>
                   <p className="font-medium text-slate-900">{lead.phone}</p>
                 </div>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowWhatsAppOptions(!showWhatsAppOptions)}
-                    className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
-                    title="Open WhatsApp Chat"
-                  >
-                    <MessageCircle size={18} />
-                  </button>
-                  
-                  {showWhatsAppOptions && (
-                    <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 min-w-[140px]">
-                      <button
-                        onClick={() => openWhatsApp('normal')}
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 rounded-t-lg"
-                      >
-                        WhatsApp
-                      </button>
-                      <button
-                        onClick={() => openWhatsApp('business')}
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 rounded-b-lg border-t border-slate-100"
-                      >
-                        WhatsApp Business
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <a
+                  href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
+                  title="Open WhatsApp Chat"
+                >
+                  <MessageCircle size={18} />
+                </a>
               </div>
               
               <div className="flex items-center gap-3">
