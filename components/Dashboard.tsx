@@ -10,7 +10,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
   const stats = {
     total: leads.length,
     new: leads.filter(l => l.currentStatus === LeadStatus.NEW).length,
-    genuine: leads.filter(l => l.leadQuality === 'Genuine' || l.leadQuality === 'HOT' || l.leadQuality === LeadCategory.HOT).length,
+    genuine: leads.filter(l => {
+      console.log('Lead quality after fix:', l.leadQuality, 'Type:', typeof l.leadQuality);
+      return l.leadQuality === 'Genuine' || l.leadQuality === 'HOT' || l.leadQuality === LeadCategory.HOT;
+    }).length,
     won: leads.filter(l => l.currentStatus === LeadStatus.WON).length,
     qualified: leads.filter(l => l.currentStatus === LeadStatus.QUALIFIED).length,
     contacted: leads.filter(l => l.currentStatus === LeadStatus.CONTACTED).length,
