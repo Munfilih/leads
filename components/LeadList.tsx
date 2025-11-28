@@ -103,7 +103,8 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-slate-500">
             <thead className="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-100">
@@ -193,6 +194,79 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredLeads.length > 0 ? (
+          filteredLeads.map((lead) => (
+            <div 
+              key={lead.id}
+              onClick={() => onSelectLead(lead)}
+              className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  {getCategoryDot(lead.leadQuality)}
+                  <h3 className="font-semibold text-slate-900">{lead.name || 'N/A'}</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  {onEditLead && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditLead(lead);
+                      }}
+                      className="text-slate-400 hover:text-indigo-600 transition-colors"
+                    >
+                      <Edit size={16} />
+                    </button>
+                  )}
+                  {onDeleteLead && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirm({ isOpen: true, leadId: lead.id, leadName: lead.name || lead.phone });
+                      }}
+                      className="text-slate-400 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Phone:</span>
+                  <span className="font-medium">{lead.phone}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Location:</span>
+                  <span>{lead.place}, {lead.country}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Status:</span>
+                  {getStatusBadge(lead.currentStatus)}
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Assigned:</span>
+                  <span>{lead.forwardedTo || 'Not assigned'}</span>
+                </div>
+                {lead.dateTime && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Date:</span>
+                    <span>{new Date(lead.dateTime).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="bg-white p-8 rounded-xl border border-slate-200 text-center text-slate-400">
+            No leads found matching your criteria.
+          </div>
+        )}
       </div>
       
       <ConfirmationModal
