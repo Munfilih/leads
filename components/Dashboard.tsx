@@ -273,7 +273,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
                 }
                 acc[team].total++;
                 if (lead.currentStatus === LeadStatus.WON) acc[team].won++;
-                if (lead.leadQuality === LeadCategory.HOT) acc[team].genuine++;
+                if (lead.leadQuality === 'Genuine' || lead.leadQuality === LeadCategory.HOT) acc[team].genuine++;
                 return acc;
               }, {} as Record<string, { total: number; won: number; hot: number }>);
 
