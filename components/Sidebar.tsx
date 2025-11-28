@@ -27,9 +27,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isAdm
             onClick={() => setIsAdminMode(!isAdminMode)}
             className="text-left hover:opacity-80 transition-opacity"
           >
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
-              Z
-            </h1>
+            <div className="flex items-center">
+              <img src="./favicon.png" alt="Z" className="w-8 h-8" />
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text -ml-1">
+                awo Leads
+              </h1>
+            </div>
             <p className="text-xs text-slate-500 mt-1">Leads Manager {isAdminMode && '(Admin)'}</p>
           </button>
         </div>
