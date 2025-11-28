@@ -115,14 +115,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
           )}
         </div>
         
-        <div className="flex justify-end p-6 border-t border-slate-200">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-          >
-            Close
-          </button>
-        </div>
+
       </div>
     </div>
   );
