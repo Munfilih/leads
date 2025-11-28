@@ -208,7 +208,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
                   {getCategoryDot(lead.leadQuality)}
-                  <h3 className="font-semibold text-slate-900">{lead.name || 'N/A'}</h3>
+                  <h3 className="font-semibold text-slate-900">#{lead.slNo || 'N/A'} {lead.name || 'N/A'}</h3>
                 </div>
                 <div className="flex items-center gap-2">
                   {onEditLead && (
