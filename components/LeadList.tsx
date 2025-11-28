@@ -174,7 +174,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                     <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                             <a
-                              href={`whatsapp://send?phone=${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+                              href={`whatsapp://send?phone=+${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
                               onClick={(e) => e.stopPropagation()}
                               className="text-slate-400 hover:text-green-600 transition-colors"
                               title="Open WhatsApp"
@@ -235,7 +235,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                 </div>
                 <div className="flex items-center gap-2">
                   <a
-                    href={`whatsapp://send?phone=${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+                    href={`whatsapp://send?phone=+${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
                     onClick={(e) => e.stopPropagation()}
                     className="text-slate-400 hover:text-green-600 transition-colors"
                     title="Open WhatsApp"
