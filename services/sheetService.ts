@@ -7,7 +7,7 @@ const CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRpuMDxiaD0SePk
 
 export const fetchLeadsFromSheet = async (): Promise<Lead[]> => {
   try {
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCWop_OnIoNjXjVOjooJlekGxhXT6RvICTc92-T93MKCiQ8fD0GJMwsRUhF6hLjsTp/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylA33qDF0hBBGt49Zkv-IEsFky0-HxefYmvq3HC5_JvJMbcPJnAA2sNi7nM4I9vGOr/exec';
     const formData = new FormData();
     formData.append('action', 'getLeads');
     
@@ -43,7 +43,7 @@ export const fetchLeadsFromSheet = async (): Promise<Lead[]> => {
 
 export const getSheetNames = async (): Promise<string[]> => {
   try {
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCWop_OnIoNjXjVOjooJlekGxhXT6RvICTc92-T93MKCiQ8fD0GJMwsRUhF6hLjsTp/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylA33qDF0hBBGt49Zkv-IEsFky0-HxefYmvq3HC5_JvJMbcPJnAA2sNi7nM4I9vGOr/exec';
     const formData = new FormData();
     formData.append('action', 'getSheets');
     
@@ -63,7 +63,7 @@ export const getSheetNames = async (): Promise<string[]> => {
 
 export const saveLeadToSheet = async (lead: Lead): Promise<boolean> => {
   try {
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCWop_OnIoNjXjVOjooJlekGxhXT6RvICTc92-T93MKCiQ8fD0GJMwsRUhF6hLjsTp/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylA33qDF0hBBGt49Zkv-IEsFky0-HxefYmvq3HC5_JvJMbcPJnAA2sNi7nM4I9vGOr/exec';
     
     const formData = new FormData();
     formData.append('action', 'saveToSheets');
@@ -100,7 +100,7 @@ export const saveLeadToSheet = async (lead: Lead): Promise<boolean> => {
 
 export const deleteLeadFromSheet = async (uid: string): Promise<boolean> => {
   try {
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCWop_OnIoNjXjVOjooJlekGxhXT6RvICTc92-T93MKCiQ8fD0GJMwsRUhF6hLjsTp/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylA33qDF0hBBGt49Zkv-IEsFky0-HxefYmvq3HC5_JvJMbcPJnAA2sNi7nM4I9vGOr/exec';
     
     const formData = new FormData();
     formData.append('action', 'deleteLead');
