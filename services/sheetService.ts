@@ -155,13 +155,9 @@ const parseCSV = (csvText: string): Lead[] => {
   }).filter(l => l.phone && l.phone !== '');
 };
 
-const mapCategory = (categoryStr: string): LeadCategory => {
-  const c = categoryStr?.toUpperCase() || '';
-  if (c.includes('HOT')) return LeadCategory.HOT;
-  if (c.includes('WARM')) return LeadCategory.WARM;
-  if (c.includes('COLD')) return LeadCategory.COLD;
-  if (c.includes('FAKE')) return LeadCategory.FAKE;
-  return LeadCategory.UNCATEGORIZED;
+const mapCategory = (categoryStr: string): string => {
+  if (!categoryStr) return 'UNCATEGORIZED';
+  return categoryStr; // Return the actual value from sheets
 };
 
 const mapStatus = (statusStr: string): LeadStatus => {
