@@ -114,12 +114,19 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               <label className="block text-sm font-medium text-slate-700 mb-2">Lead Quality</label>
               <select 
                 value={formData.leadQuality}
-                onChange={(e) => setFormData({...formData, leadQuality: e.target.value as LeadCategory})}
+                onChange={(e) => setFormData({...formData, leadQuality: e.target.value})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
-                {(leadQualities || Object.values(LeadCategory)).map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
+                {(() => {
+                  const allQualities = leadQualities || ['Genuine', 'WARM', 'COLD', 'FAKE', 'UNCATEGORIZED'];
+                  // Add current lead quality if it's not in the list
+                  if (!allQualities.includes(formData.leadQuality)) {
+                    allQualities.push(formData.leadQuality);
+                  }
+                  return allQualities.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ));
+                })()}
               </select>
             </div>
 
