@@ -240,19 +240,33 @@ function updateOrInsertRow(sheet, uid, data) {
     if (values[i][0] === uid) {
       // Update existing row
       sheet.getRange(i + 1, 1, 1, data.length).setValues([data]);
+      renumberSlNumbers(sheet);
       return;
     }
   }
   
-  // Insert new row if UID not found
-  sheet.appendRow(data);
+  // Find correct position to insert based on date
+  const newDate = new Date(data[data.length - 1]); // Last column is date
+  let insertRow = sheet.getLastRow() + 1; // Default to end
   
-  // Sort by date column (last column) - newest first, skip header row
-  const range = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn());
-  if (range.getNumRows() > 0) {
-    const dateColumn = sheet.getLastColumn(); // Last column is date
-    range.sort([{column: dateColumn, ascending: false}]);
+  for (let i = 1; i < values.length; i++) {
+    const existingDate = new Date(values[i][values[i].length - 1]);
+    if (newDate > existingDate) {
+      insertRow = i + 1;
+      break;
+    }
   }
+  
+  // Insert row at correct position
+  if (insertRow <= sheet.getLastRow()) {
+    sheet.insertRowBefore(insertRow);
+    sheet.getRange(insertRow, 1, 1, data.length).setValues([data]);
+  } else {
+    sheet.appendRow(data);
+  }
+  
+  // Renumber SL numbers
+  renumberSlNumbers(sheet);
 }
 
 function deleteRowByUid(sheet, uid) {
@@ -278,4 +292,14 @@ function sortSheetByDate(sheet) {
   
   const dataRange = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn());
   dataRange.sort([{column: sheet.getLastColumn(), ascending: false}]);
+  renumberSlNumbers(sheet);
+}
+
+function renumberSlNumbers(sheet) {
+  if (!sheet || sheet.getLastRow() <= 1) return;
+  
+  const lastRow = sheet.getLastRow();
+  for (let i = 2; i <= lastRow; i++) {
+    sheet.getRange(i, 2).setValue(i - 1); // SL No is column 2
+  }
 }
