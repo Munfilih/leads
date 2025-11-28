@@ -25,6 +25,10 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
     const matchesStatus = statusFilter === 'ALL' || lead.currentStatus === statusFilter;
     const matchesSheet = sheetFilter === 'ALL' || lead.forwardedTo === sheetFilter || (sheetFilter === 'Unassigned' && !lead.forwardedTo);
     return matchesText && matchesStatus && matchesSheet;
+  }).sort((a, b) => {
+    const dateA = new Date(a.dateTime || 0);
+    const dateB = new Date(b.dateTime || 0);
+    return dateB.getTime() - dateA.getTime(); // Sort newest first
   });
 
   const getStatusBadge = (status: LeadStatus) => {
