@@ -117,6 +117,15 @@ function doPost(e) {
       console.log('No forwarded sheet specified or forwarded to All leads');
     }
     
+    // Sort both sheets after saving
+    sortSheetByDate(allLeadsSheet);
+    if (e.parameter.forwardedTo && e.parameter.forwardedTo !== '' && e.parameter.forwardedTo !== 'All leads') {
+      const targetSheet = ss.getSheetByName(e.parameter.forwardedTo);
+      if (targetSheet) {
+        sortSheetByDate(targetSheet);
+      }
+    }
+    
     return ContentService.createTextOutput(uid);
   }
   
@@ -262,4 +271,11 @@ function deleteRowByUid(sheet, uid) {
     }
   }
   return false;
+}
+
+function sortSheetByDate(sheet) {
+  if (!sheet || sheet.getLastRow() <= 1) return;
+  
+  const dataRange = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn());
+  dataRange.sort([{column: sheet.getLastColumn(), ascending: false}]);
 }
