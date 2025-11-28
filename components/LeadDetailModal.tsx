@@ -43,9 +43,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
                   <p className="font-medium text-slate-900">{lead.phone}</p>
                 </div>
                 <a
-                  href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={`whatsapp://send?phone=${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
                   className="p-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors"
                   title="Open WhatsApp Chat"
                 >
