@@ -30,6 +30,22 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave }) => {
   const [sheetNames, setSheetNames] = useState<string[]>([]);
   const phoneRef = useRef<HTMLInputElement>(null);
 
+  const getCountryFromPhone = (phone: string): string => {
+    const cleanPhone = phone.replace(/[^0-9+]/g, '');
+    if (cleanPhone.startsWith('+91') || cleanPhone.startsWith('91')) return 'India';
+    if (cleanPhone.startsWith('+1')) return 'USA';
+    if (cleanPhone.startsWith('+44')) return 'UK';
+    if (cleanPhone.startsWith('+971')) return 'UAE';
+    if (cleanPhone.startsWith('+966')) return 'Saudi Arabia';
+    if (cleanPhone.startsWith('+974')) return 'Qatar';
+    if (cleanPhone.startsWith('+965')) return 'Kuwait';
+    if (cleanPhone.startsWith('+973')) return 'Bahrain';
+    if (cleanPhone.startsWith('+968')) return 'Oman';
+    if (cleanPhone.startsWith('+60')) return 'Malaysia';
+    if (cleanPhone.startsWith('+65')) return 'Singapore';
+    return '';
+  };
+
   useEffect(() => {
     phoneRef.current?.focus();
     loadSheetNames();
@@ -102,7 +118,11 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave }) => {
               ref={phoneRef}
               type="tel"
               value={formData.phone}
-              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              onChange={(e) => {
+                const phone = e.target.value;
+                const country = getCountryFromPhone(phone);
+                setFormData({...formData, phone, country: country || formData.country});
+              }}
               onKeyDown={(e) => handleKeyDown(e, countryRef)}
               className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Enter mobile number"
