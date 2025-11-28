@@ -177,11 +177,9 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave }) => {
                 onKeyDown={(e) => handleKeyDown(e, industryRef)}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
-                <option value="Genuine">Genuine</option>
-                <option value="WARM">WARM</option>
-                <option value="COLD">COLD</option>
-                <option value="FAKE">FAKE</option>
-                <option value="UNCATEGORIZED">UNCATEGORIZED</option>
+                {(leadQualities || ['Genuine', 'WARM', 'COLD', 'FAKE', 'UNCATEGORIZED']).map(c => (
+                    <option key={c} value={c}>{c}</option>
+                ))}
             </select>
           </div>
 
