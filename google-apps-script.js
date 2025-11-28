@@ -237,6 +237,13 @@ function updateOrInsertRow(sheet, uid, data) {
   
   // Insert new row if UID not found
   sheet.appendRow(data);
+  
+  // Sort by date column (last column) - newest first
+  const range = sheet.getDataRange();
+  if (range.getNumRows() > 1) {
+    const dateColumn = range.getNumColumns(); // Last column is date
+    range.sort([{column: dateColumn, ascending: false}]);
+  }
 }
 
 function deleteRowByUid(sheet, uid) {
