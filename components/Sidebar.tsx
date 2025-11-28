@@ -28,7 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isAdm
             className="text-left hover:opacity-80 transition-opacity"
           >
             <div className="flex items-center">
-              <img src="./favicon.png" alt="Z" className="w-8 h-8" />
+              <img src="/leads/favicon.png" alt="Z" className="w-8 h-8" />
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text -ml-1">
                 awo Leads
               </h1>
