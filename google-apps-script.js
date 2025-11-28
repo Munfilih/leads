@@ -138,13 +138,19 @@ function doPost(e) {
     // Delete from all sheets using UID
     const sheets = ss.getSheets();
     let deleted = false;
+    const sheetsToRenumber = [];
+    
     sheets.forEach(sheet => {
       if (deleteRowByUid(sheet, uid)) {
         deleted = true;
         console.log('Deleted from sheet:', sheet.getName());
-        // Renumber SL numbers after deletion
-        renumberSlNumbers(sheet);
+        sheetsToRenumber.push(sheet);
       }
+    });
+    
+    // Renumber all affected sheets
+    sheetsToRenumber.forEach(sheet => {
+      renumberSlNumbers(sheet);
     });
     
     return ContentService.createTextOutput(deleted ? 'Deleted' : 'Not found');
