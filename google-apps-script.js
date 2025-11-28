@@ -245,13 +245,13 @@ function updateOrInsertRow(sheet, uid, data) {
     }
   }
   
-  // Find correct position to insert based on date
+  // Find correct position to insert based on date (oldest to newest)
   const newDate = new Date(data[data.length - 1]); // Last column is date
   let insertRow = sheet.getLastRow() + 1; // Default to end
   
   for (let i = 1; i < values.length; i++) {
     const existingDate = new Date(values[i][values[i].length - 1]);
-    if (newDate > existingDate) {
+    if (newDate < existingDate) {
       insertRow = i + 1;
       break;
     }
@@ -291,7 +291,7 @@ function sortSheetByDate(sheet) {
   if (!sheet || sheet.getLastRow() <= 1) return;
   
   const dataRange = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn());
-  dataRange.sort([{column: sheet.getLastColumn(), ascending: false}]);
+  dataRange.sort([{column: sheet.getLastColumn(), ascending: true}]);
   renumberSlNumbers(sheet);
 }
 
