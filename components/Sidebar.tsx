@@ -28,7 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isAdm
             className="text-left hover:opacity-80 transition-opacity"
           >
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
-              Zawo CRM
+              Z
             </h1>
             <p className="text-xs text-slate-500 mt-1">Leads Manager {isAdminMode && '(Admin)'}</p>
           </button>
