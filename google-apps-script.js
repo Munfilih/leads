@@ -142,6 +142,8 @@ function doPost(e) {
       if (deleteRowByUid(sheet, uid)) {
         deleted = true;
         console.log('Deleted from sheet:', sheet.getName());
+        // Renumber SL numbers after deletion
+        renumberSlNumbers(sheet);
       }
     });
     
