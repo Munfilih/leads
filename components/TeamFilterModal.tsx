@@ -18,8 +18,10 @@ export const TeamFilterModal: React.FC<TeamFilterModalProps> = ({
   if (!isOpen) return null;
 
   const teamStats = leads.reduce((acc, lead) => {
-    const team = (lead.forwardedTo || 'Unassigned').trim();
-    acc[team] = (acc[team] || 0) + 1;
+    if (lead.forwardedTo && lead.forwardedTo.trim() && lead.forwardedTo.toLowerCase() !== 'removed') {
+      const team = lead.forwardedTo.trim();
+      acc[team] = (acc[team] || 0) + 1;
+    }
     return acc;
   }, {} as Record<string, number>);
 

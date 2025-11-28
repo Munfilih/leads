@@ -7,6 +7,7 @@ import { QualityFilterModal } from './QualityFilterModal';
 import { TeamFilterModal } from './TeamFilterModal';
 import { StatusFilterModal } from './StatusFilterModal';
 import { HourFilterModal } from './HourFilterModal';
+import { PendingFilterModal } from './PendingFilterModal';
 
 
 interface DashboardProps {
@@ -17,9 +18,14 @@ interface DashboardProps {
   onFilterByTeam?: (team: string) => void;
   onFilterByStatus?: (status: string) => void;
   onFilterByHour?: (hour: string) => void;
+
+  onFilterTotal?: () => void;
+  onFilterPending?: () => void;
+  onFilterForwarded?: () => void;
+  onFilterRemoved?: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, onFilterByCountry, onFilterByQuality, onFilterByTeam, onFilterByStatus, onFilterByHour }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, onFilterByCountry, onFilterByQuality, onFilterByTeam, onFilterByStatus, onFilterByHour, onFilterTotal, onFilterPending, onFilterForwarded, onFilterRemoved }) => {
   const [showPlaceModal, setShowPlaceModal] = useState(false);
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [showQualityModal, setShowQualityModal] = useState(false);
@@ -29,11 +35,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
   const stats = {
     total: leads.length,
     new: leads.filter(l => l.currentStatus === LeadStatus.NEW).length,
-    genuine: leads.filter(l => l.leadQuality === 'Genuine' || l.leadQuality === 'GENUINE' || l.leadQuality === 'HOT' || l.leadQuality === LeadCategory.HOT).length,
+    pending: leads.filter(l => !l.forwardedTo || l.forwardedTo.trim() === '').length,
     won: leads.filter(l => l.currentStatus === LeadStatus.WON).length,
     qualified: leads.filter(l => l.currentStatus === LeadStatus.QUALIFIED).length,
     contacted: leads.filter(l => l.currentStatus === LeadStatus.CONTACTED).length,
-    forwarded: leads.filter(l => l.forwardedTo && l.forwardedTo !== '').length,
+    forwarded: leads.filter(l => l.forwardedTo && l.forwardedTo !== '' && l.forwardedTo.toLowerCase() !== 'removed').length,
+    removed: leads.filter(l => l.currentStatus === LeadStatus.LOST || l.currentStatus === LeadStatus.SPAM || (l.forwardedTo && l.forwardedTo.toLowerCase() === 'removed')).length,
   };
 
   // Recent activity (last 7 days)
@@ -70,12 +77,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
     .slice(0, 5);
 
   const forwardRate = stats.total > 0 ? ((stats.forwarded / stats.total) * 100).toFixed(1) : '0';
+  const removedRate = stats.total > 0 ? ((stats.removed / stats.total) * 100).toFixed(1) : '0';
+  const pendingRate = stats.total > 0 ? ((stats.pending / stats.total) * 100).toFixed(1) : '0';
 
   return (
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => onFilterTotal && onFilterTotal()}
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">Total Leads</p>
@@ -88,25 +100,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => onFilterPending && onFilterPending()}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Genuine Leads</p>
-              <p className="text-2xl font-bold text-green-600">{stats.genuine}</p>
-              <p className="text-xs text-slate-400 mt-1">High quality leads</p>
+              <p className="text-sm font-medium text-slate-500">Pending Leads</p>
+              <p className="text-2xl font-bold text-orange-600">{pendingRate}%</p>
+              <p className="text-xs text-slate-400 mt-1">{stats.pending} of {stats.total} leads</p>
             </div>
-            <div className="p-3 bg-green-100 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-green-600" />
+            <div className="p-3 bg-orange-100 rounded-lg">
+              <Clock className="w-6 h-6 text-orange-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => onFilterForwarded && onFilterForwarded()}
+        >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">Forward Rate</p>
               <p className="text-2xl font-bold text-emerald-600">{forwardRate}%</p>
-              <p className="text-xs text-slate-400 mt-1">{stats.forwarded} forwarded leads</p>
+              <p className="text-xs text-slate-400 mt-1">{stats.forwarded} of {stats.total} leads</p>
             </div>
             <div className="p-3 bg-emerald-100 rounded-lg">
               <TrendingUp className="w-6 h-6 text-emerald-600" />
@@ -114,15 +132,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        <div 
+          className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => onFilterRemoved && onFilterRemoved()}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Active Pipeline</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.new + stats.contacted + stats.qualified}</p>
-              <p className="text-xs text-slate-400 mt-1">In progress</p>
+              <p className="text-sm font-medium text-slate-500">Removed/Lost</p>
+              <p className="text-2xl font-bold text-red-600">{removedRate}%</p>
+              <p className="text-xs text-slate-400 mt-1">{stats.removed} of {stats.total} leads</p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Clock className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-red-100 rounded-lg">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
           </div>
         </div>
@@ -353,13 +374,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
           <div className="space-y-3">
             {(() => {
               const teamStats = leads.reduce((acc, lead) => {
-                const team = (lead.forwardedTo || 'Unassigned').trim();
-                if (!acc[team]) {
-                  acc[team] = { total: 0, won: 0, genuine: 0 };
+                if (lead.forwardedTo && lead.forwardedTo.trim() && lead.forwardedTo.toLowerCase() !== 'removed') {
+                  const team = lead.forwardedTo.trim();
+                  if (!acc[team]) {
+                    acc[team] = { total: 0, won: 0, genuine: 0 };
+                  }
+                  acc[team].total++;
+                  if (lead.currentStatus === LeadStatus.WON) acc[team].won++;
+                  if (lead.leadQuality === 'Genuine' || lead.leadQuality === 'GENUINE' || lead.leadQuality === 'HOT' || lead.leadQuality === LeadCategory.HOT) acc[team].genuine++;
                 }
-                acc[team].total++;
-                if (lead.currentStatus === LeadStatus.WON) acc[team].won++;
-                if (lead.leadQuality === 'Genuine' || lead.leadQuality === 'GENUINE' || lead.leadQuality === 'HOT' || lead.leadQuality === LeadCategory.HOT) acc[team].genuine++;
                 return acc;
               }, {} as Record<string, { total: number; won: number; hot: number }>);
 

@@ -22,9 +22,11 @@ interface LeadListProps {
   onClearStatusFilter?: () => void;
   hourFilter?: string;
   onClearHourFilter?: () => void;
+  pendingFilter?: boolean;
+  onClearPendingFilter?: () => void;
 }
 
-export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditLead, onAddLead, onDeleteLead, sheetNames = [], placeFilter, onClearPlaceFilter, countryFilter, onClearCountryFilter, qualityFilter, onClearQualityFilter, teamFilter, onClearTeamFilter, statusFilter, onClearStatusFilter, hourFilter, onClearHourFilter }) => {
+export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditLead, onAddLead, onDeleteLead, sheetNames = [], placeFilter, onClearPlaceFilter, countryFilter, onClearCountryFilter, qualityFilter, onClearQualityFilter, teamFilter, onClearTeamFilter, statusFilter, onClearStatusFilter, hourFilter, onClearHourFilter, pendingFilter, onClearPendingFilter }) => {
   const [filter, setFilter] = useState('');
   const [localStatusFilter, setLocalStatusFilter] = useState<LeadStatus | 'ALL'>('ALL');
   const [sheetFilter, setSheetFilter] = useState<string>('ALL');
@@ -44,12 +46,22 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                           (lead.currentStatus || '').toLowerCase().includes(searchTerm) ||
                           (lead.forwardedTo || '').toLowerCase().includes(searchTerm) ||
                           (lead.slNo || '').toString().includes(searchTerm);
-      const matchesStatus = localStatusFilter === 'ALL' || lead.currentStatus === localStatusFilter;
+      const matchesStatus = statusFilter ? true : (localStatusFilter === 'ALL' || lead.currentStatus === localStatusFilter);
       const matchesSheet = sheetFilter === 'ALL' || lead.forwardedTo === sheetFilter || (sheetFilter === 'Unassigned' && !lead.forwardedTo);
       const matchesPlace = !placeFilter || (lead.place || '').toLowerCase().trim() === placeFilter.toLowerCase().trim();
       const matchesCountry = !countryFilter || (lead.country || '').toLowerCase().trim() === countryFilter.toLowerCase().trim();
       const matchesQuality = !qualityFilter || (lead.leadQuality || '').toString().toLowerCase().trim() === qualityFilter.toLowerCase().trim();
-      const matchesTeam = !teamFilter || (lead.forwardedTo || 'Unassigned').toLowerCase().trim() === teamFilter.toLowerCase().trim();
+      const matchesPending = !pendingFilter || (!lead.forwardedTo || lead.forwardedTo.trim() === '');
+      const matchesTeam = !teamFilter || (() => {
+        if (teamFilter === 'forwarded') {
+          return lead.forwardedTo && lead.forwardedTo.trim() !== '' && lead.forwardedTo.toLowerCase() !== 'removed';
+        }
+        if (teamFilter === 'removed') {
+          return lead.currentStatus === 'LOST' || lead.currentStatus === 'SPAM' || (lead.forwardedTo && lead.forwardedTo.toLowerCase() === 'removed');
+        }
+        return lead.forwardedTo && lead.forwardedTo.toLowerCase().trim() === teamFilter.toLowerCase().trim();
+      })();
+
       const matchesStatusFilter = !statusFilter || (lead.currentStatus || '').trim() === statusFilter.trim();
       const matchesHour = !hourFilter || (() => {
         if (!lead.dateTime) return false;
@@ -57,7 +69,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
         const timeRange = `${hour.toString().padStart(2, '0')}:00 - ${(hour + 1).toString().padStart(2, '0')}:00`;
         return timeRange === hourFilter;
       })();
-      return matchesText && matchesStatus && matchesSheet && matchesPlace && matchesCountry && matchesQuality && matchesTeam && matchesStatusFilter && matchesHour;
+      return matchesText && matchesStatus && matchesSheet && matchesPlace && matchesCountry && matchesQuality && matchesTeam && matchesStatusFilter && matchesHour && matchesPending;
     } catch (error) {
       console.error('Filter error:', error);
       return true;
@@ -97,8 +109,23 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
     return <div className={`w-2.5 h-2.5 rounded-full ${colors[cat]}`} title={cat} />;
   };
 
+  const getTeamColor = (teamName: string) => {
+    if (!teamName || teamName === 'Not assigned') return 'text-yellow-600';
+    if (teamName.toLowerCase() === 'removed') return 'text-red-600';
+    const colors = ['text-blue-600', 'text-green-600', 'text-purple-600', 'text-orange-600', 'text-pink-600', 'text-indigo-600', 'text-teal-600'];
+    const hash = teamName.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   return (
     <div className="space-y-4">
+      {/* Filtered Count Display */}
+      <div className="bg-slate-100 border border-slate-300 rounded-lg p-3 text-center">
+        <span className="text-slate-700 font-medium">
+          Showing {filteredLeads.length} of {leads.length} leads
+        </span>
+      </div>
+      
       {placeFilter && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between">
           <span className="text-blue-800 text-sm">
@@ -138,7 +165,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
           </button>
         </div>
       )}
-      {teamFilter && (
+      {teamFilter && !pendingFilter && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center justify-between">
           <span className="text-orange-800 text-sm">
             Filtered by team: <strong>{teamFilter}</strong>
@@ -172,6 +199,19 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
           <button
             onClick={onClearHourFilter}
             className="text-indigo-600 hover:text-indigo-800 text-sm underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
+      {pendingFilter && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
+          <span className="text-yellow-800 text-sm">
+            Showing pending leads only
+          </span>
+          <button
+            onClick={onClearPendingFilter}
+            className="text-yellow-600 hover:text-yellow-800 text-sm underline"
           >
             Clear filter
           </button>
@@ -263,7 +303,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                         {lead.name || 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                        {lead.phone}
+                        +{lead.phone}
                     </td>
                     <td className="px-6 py-4 text-sm">
                         {lead.country}
@@ -272,7 +312,9 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                         {getStatusBadge(lead.currentStatus)}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                        {lead.forwardedTo || 'Not assigned'}
+                        <span className={`font-medium ${getTeamColor(lead.forwardedTo || 'Not assigned')}`}>
+                          {lead.forwardedTo || 'Not assigned'}
+                        </span>
                     </td>
                     <td className="px-6 py-4 text-sm">
                         {lead.dateTime ? new Date(lead.dateTime).toLocaleString('en-US', {
@@ -388,7 +430,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Phone:</span>
-                  <span className="font-medium">{lead.phone}</span>
+                  <span className="font-medium">+{lead.phone}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Location:</span>
@@ -400,7 +442,9 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Assigned:</span>
-                  <span>{lead.forwardedTo || 'Not assigned'}</span>
+                  <span className={`font-medium ${getTeamColor(lead.forwardedTo || 'Not assigned')}`}>
+                    {lead.forwardedTo || 'Not assigned'}
+                  </span>
                 </div>
                 {lead.dateTime && (
                   <div className="flex justify-between">
