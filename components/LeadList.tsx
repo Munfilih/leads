@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Lead, LeadCategory, LeadStatus } from '../types';
-import { Search, Filter, MoreVertical, Edit, Plus, Trash2 } from 'lucide-react';
+import { Search, Filter, MoreVertical, Edit, Plus, Trash2, MessageCircle } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 
 interface LeadListProps {
@@ -173,6 +173,16 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                     </td>
                     <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                            <a
+                              href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-slate-400 hover:text-green-600 transition-colors"
+                              title="Open WhatsApp"
+                            >
+                              <MessageCircle size={16} />
+                            </a>
                             {onEditLead && (
                                 <button 
                                     onClick={(e) => {
@@ -226,6 +236,16 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                   <h3 className="font-semibold text-slate-900">#{lead.slNo || 'N/A'} {lead.name || 'N/A'}</h3>
                 </div>
                 <div className="flex items-center gap-2">
+                  <a
+                    href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-slate-400 hover:text-green-600 transition-colors"
+                    title="Open WhatsApp"
+                  >
+                    <MessageCircle size={16} />
+                  </a>
                   {onEditLead && (
                     <button 
                       onClick={(e) => {
