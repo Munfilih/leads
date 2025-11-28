@@ -10,7 +10,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
   const stats = {
     total: leads.length,
     new: leads.filter(l => l.currentStatus === LeadStatus.NEW).length,
-    genuine: leads.filter(l => l.leadQuality === 'Genuine' || l.leadQuality === LeadCategory.HOT).length,
+    genuine: leads.filter(l => l.leadQuality === 'Genuine' || l.leadQuality === 'HOT' || l.leadQuality === LeadCategory.HOT).length,
     won: leads.filter(l => l.currentStatus === LeadStatus.WON).length,
     qualified: leads.filter(l => l.currentStatus === LeadStatus.QUALIFIED).length,
     contacted: leads.filter(l => l.currentStatus === LeadStatus.CONTACTED).length,
@@ -273,7 +273,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads }) => {
                 }
                 acc[team].total++;
                 if (lead.currentStatus === LeadStatus.WON) acc[team].won++;
-                if (lead.leadQuality === 'Genuine' || lead.leadQuality === LeadCategory.HOT) acc[team].genuine++;
+                if (lead.leadQuality === 'Genuine' || lead.leadQuality === 'HOT' || lead.leadQuality === LeadCategory.HOT) acc[team].genuine++;
                 return acc;
               }, {} as Record<string, { total: number; won: number; hot: number }>);
 
