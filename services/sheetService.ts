@@ -74,7 +74,7 @@ export const saveLeadToSheet = async (lead: Lead): Promise<boolean> => {
     formData.append('country', lead.country);
     formData.append('place', lead.place);
     formData.append('name', lead.name);
-    formData.append('leadQuality', lead.leadQuality);
+    formData.append('leadQuality', lead.leadQuality === 'Genuine' ? 'HOT' : lead.leadQuality);
     formData.append('businessIndustry', lead.businessIndustry);
     formData.append('specialNotes', lead.specialNotes);
     formData.append('currentStatus', lead.currentStatus);
