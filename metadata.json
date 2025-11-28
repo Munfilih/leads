@@ -1,0 +1,5 @@
+{
+  "name": "Zawo Leads Manager",
+  "description": "A CRM application to manage, categorize, and follow up on leads from WhatsApp using Google Sheets and Gemini AI.",
+  "requestFramePermissions": []
+}
