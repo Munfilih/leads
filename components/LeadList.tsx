@@ -174,7 +174,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                     <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                             <a
-                              href={`https://wa.me/+${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+                              href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
@@ -237,7 +237,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                 </div>
                 <div className="flex items-center gap-2">
                   <a
-                    href={`https://wa.me/+${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+                    href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
