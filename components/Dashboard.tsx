@@ -18,14 +18,14 @@ interface DashboardProps {
   onFilterByTeam?: (team: string) => void;
   onFilterByStatus?: (status: string) => void;
   onFilterByHour?: (hour: string) => void;
-
+  onFilterByDate?: (date: string) => void;
   onFilterTotal?: () => void;
   onFilterPending?: () => void;
   onFilterForwarded?: () => void;
   onFilterRemoved?: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, onFilterByCountry, onFilterByQuality, onFilterByTeam, onFilterByStatus, onFilterByHour, onFilterTotal, onFilterPending, onFilterForwarded, onFilterRemoved }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, onFilterByCountry, onFilterByQuality, onFilterByTeam, onFilterByStatus, onFilterByHour, onFilterByDate, onFilterTotal, onFilterPending, onFilterForwarded, onFilterRemoved }) => {
   const [showPlaceModal, setShowPlaceModal] = useState(false);
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [showQualityModal, setShowQualityModal] = useState(false);
@@ -439,25 +439,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
             
             return (
               <div className="flex items-end justify-between h-full gap-2">
-                {dailyStats.map((day, index) => (
-                  <div key={index} className="flex flex-col items-center flex-1">
-                    <div className="flex flex-col items-center justify-end h-48 mb-2">
-                      <div className="text-xs text-slate-600 mb-1">{day.total}</div>
-                      <div 
-                        className="bg-indigo-500 rounded-t w-8 min-h-[4px]"
-                        style={{ height: `${(day.total / maxCount) * 180}px` }}
-                      />
-                      <div 
-                        className="bg-emerald-500 rounded-t w-8 min-h-[2px] -mt-1"
-                        style={{ height: `${(day.forwarded / maxCount) * 180}px` }}
-                      />
+                {dailyStats.map((day, index) => {
+                  const currentDate = last7Days[index];
+                  const dateString = currentDate.toISOString().split('T')[0];
+                  return (
+                    <div 
+                      key={index} 
+                      className="flex flex-col items-center flex-1 cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => onFilterByDate && onFilterByDate(dateString)}
+                    >
+                      <div className="flex flex-col items-center justify-end h-48 mb-2">
+                        <div className="text-xs text-slate-600 mb-1">{day.total}</div>
+                        <div 
+                          className="bg-indigo-500 rounded-t w-8 min-h-[4px]"
+                          style={{ height: `${(day.total / maxCount) * 180}px` }}
+                        />
+                        <div 
+                          className="bg-emerald-500 rounded-t w-8 min-h-[2px] -mt-1"
+                          style={{ height: `${(day.forwarded / maxCount) * 180}px` }}
+                        />
+                      </div>
+                      <div className="text-xs text-slate-500 text-center">
+                        <div>{day.day}</div>
+                        <div>{day.date}</div>
+                      </div>
                     </div>
-                    <div className="text-xs text-slate-500 text-center">
-                      <div>{day.day}</div>
-                      <div>{day.date}</div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             );
           })()}

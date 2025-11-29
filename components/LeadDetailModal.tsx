@@ -56,7 +56,17 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
                 <Calendar className="text-slate-400" size={20} />
                 <div>
                   <p className="text-sm text-slate-500">Date & Time</p>
-                  <p className="font-medium text-slate-900">{lead.dateTime || 'N/A'}</p>
+                  <p className="font-medium text-slate-900">
+                    {lead.dateTime ? new Date(lead.dateTime).toLocaleString('en-US', {
+                      weekday: 'short',
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    }) : 'N/A'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -111,6 +121,17 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
           )}
         </div>
         
+        <div className="px-6 pb-6">
+          <a
+            href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+          >
+            <MessageCircle size={20} />
+            Chat on WhatsApp
+          </a>
+        </div>
 
       </div>
     </div>

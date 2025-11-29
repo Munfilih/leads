@@ -29,6 +29,7 @@ const AppContent: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [hourFilter, setHourFilter] = useState<string>('');
   const [pendingFilter, setPendingFilter] = useState<boolean>(false);
+  const [dateFilter, setDateFilter] = useState<string>('');
 
   // Auto-switch to dashboard when admin mode is disabled
   React.useEffect(() => {
@@ -166,6 +167,10 @@ const AppContent: React.FC = () => {
                     setHourFilter(hour);
                     setActiveTab('leads');
                   }}
+                  onFilterByDate={(date) => {
+                    setDateFilter(date);
+                    setActiveTab('leads');
+                  }}
                   onFilterTotal={() => {
                     setPlaceFilter('');
                     setCountryFilter('');
@@ -174,6 +179,7 @@ const AppContent: React.FC = () => {
                     setStatusFilter('');
                     setHourFilter('');
                     setPendingFilter(false);
+                    setDateFilter('');
                     setActiveTab('leads');
                   }}
 
@@ -207,7 +213,7 @@ const AppContent: React.FC = () => {
                   }} 
                 />
               )}
-              {activeTab === 'leads' && <LeadList leads={leads} onSelectLead={setSelectedLead} onEditLead={isAdminMode ? setEditingLead : undefined} onDeleteLead={isAdminMode ? handleDeleteLead : undefined} sheetNames={sheetNames} placeFilter={placeFilter} onClearPlaceFilter={() => setPlaceFilter('')} countryFilter={countryFilter} onClearCountryFilter={() => setCountryFilter('')} qualityFilter={qualityFilter} onClearQualityFilter={() => setQualityFilter('')} teamFilter={teamFilter} onClearTeamFilter={() => setTeamFilter('')} statusFilter={statusFilter} onClearStatusFilter={() => setStatusFilter('')} hourFilter={hourFilter} onClearHourFilter={() => setHourFilter('')} pendingFilter={pendingFilter} onClearPendingFilter={() => setPendingFilter(false)} />}
+              {activeTab === 'leads' && <LeadList leads={leads} onSelectLead={setSelectedLead} onEditLead={isAdminMode ? setEditingLead : undefined} onDeleteLead={isAdminMode ? handleDeleteLead : undefined} sheetNames={sheetNames} placeFilter={placeFilter} onClearPlaceFilter={() => setPlaceFilter('')} countryFilter={countryFilter} onClearCountryFilter={() => setCountryFilter('')} qualityFilter={qualityFilter} onClearQualityFilter={() => setQualityFilter('')} teamFilter={teamFilter} onClearTeamFilter={() => setTeamFilter('')} statusFilter={statusFilter} onClearStatusFilter={() => setStatusFilter('')} hourFilter={hourFilter} onClearHourFilter={() => setHourFilter('')} pendingFilter={pendingFilter} onClearPendingFilter={() => setPendingFilter(false)} dateFilter={dateFilter} onClearDateFilter={() => setDateFilter('')} />}
               {activeTab === 'settings' && isAdminMode && <Settings />}
               {activeTab === 'sheets' && isAdminMode && (
                 <iframe 

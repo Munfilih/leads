@@ -24,9 +24,11 @@ interface LeadListProps {
   onClearHourFilter?: () => void;
   pendingFilter?: boolean;
   onClearPendingFilter?: () => void;
+  dateFilter?: string;
+  onClearDateFilter?: () => void;
 }
 
-export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditLead, onAddLead, onDeleteLead, sheetNames = [], placeFilter, onClearPlaceFilter, countryFilter, onClearCountryFilter, qualityFilter, onClearQualityFilter, teamFilter, onClearTeamFilter, statusFilter, onClearStatusFilter, hourFilter, onClearHourFilter, pendingFilter, onClearPendingFilter }) => {
+export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditLead, onAddLead, onDeleteLead, sheetNames = [], placeFilter, onClearPlaceFilter, countryFilter, onClearCountryFilter, qualityFilter, onClearQualityFilter, teamFilter, onClearTeamFilter, statusFilter, onClearStatusFilter, hourFilter, onClearHourFilter, pendingFilter, onClearPendingFilter, dateFilter, onClearDateFilter }) => {
   const [filter, setFilter] = useState('');
   const [localStatusFilter, setLocalStatusFilter] = useState<LeadStatus | 'ALL'>('ALL');
   const [sheetFilter, setSheetFilter] = useState<string>('ALL');
@@ -69,7 +71,12 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
         const timeRange = `${hour.toString().padStart(2, '0')}:00 - ${(hour + 1).toString().padStart(2, '0')}:00`;
         return timeRange === hourFilter;
       })();
-      return matchesText && matchesStatus && matchesSheet && matchesPlace && matchesCountry && matchesQuality && matchesTeam && matchesStatusFilter && matchesHour && matchesPending;
+      const matchesDate = !dateFilter || (() => {
+        if (!lead.dateTime) return false;
+        const leadDate = new Date(lead.dateTime).toISOString().split('T')[0];
+        return leadDate === dateFilter;
+      })();
+      return matchesText && matchesStatus && matchesSheet && matchesPlace && matchesCountry && matchesQuality && matchesTeam && matchesStatusFilter && matchesHour && matchesPending && matchesDate;
     } catch (error) {
       console.error('Filter error:', error);
       return true;
@@ -217,6 +224,19 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
           </button>
         </div>
       )}
+      {dateFilter && (
+        <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-3 flex items-center justify-between">
+          <span className="text-cyan-800 text-sm">
+            Filtered by date: <strong>{new Date(dateFilter).toLocaleDateString()}</strong>
+          </span>
+          <button
+            onClick={onClearDateFilter}
+            className="text-cyan-600 hover:text-cyan-800 text-sm underline"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -278,14 +298,15 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
           <table className="w-full text-sm text-left text-slate-500">
             <thead className="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-100">
               <tr>
-                <th scope="col" className="px-6 py-4 font-semibold">SL No</th>
-                <th scope="col" className="px-6 py-4 font-semibold">Name</th>
-                <th scope="col" className="px-6 py-4 font-semibold">Phone</th>
-                <th scope="col" className="px-6 py-4 font-semibold">Country</th>
-                <th scope="col" className="px-6 py-4 font-semibold">Status</th>
-                <th scope="col" className="px-6 py-4 font-semibold">Forwarded To</th>
-                <th scope="col" className="px-6 py-4 font-semibold">Date & Time</th>
-                <th scope="col" className="px-6 py-4 font-semibold text-right">Action</th>
+                <th scope="col" className="px-2 py-4 font-semibold w-16">SL No</th>
+                <th scope="col" className="px-3 py-4 font-semibold">Name</th>
+                <th scope="col" className="px-3 py-4 font-semibold">Phone</th>
+                <th scope="col" className="px-3 py-4 font-semibold">Country</th>
+                <th scope="col" className="px-3 py-4 font-semibold">Quality</th>
+                <th scope="col" className="px-3 py-4 font-semibold">Status</th>
+                <th scope="col" className="px-3 py-4 font-semibold">Forwarded To</th>
+                <th scope="col" className="px-3 py-4 font-semibold">Date & Time</th>
+                <th scope="col" className="px-3 py-4 font-semibold text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -296,27 +317,32 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                         onClick={() => onSelectLead(lead)}
                         className="bg-white border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer group"
                     >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-2 py-4 whitespace-nowrap text-sm font-medium w-16">
                         {lead.slNo || 'N/A'}
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-900">
+                    <td className="px-3 py-4 font-medium text-slate-900">
                         {lead.name || 'N/A'}
                     </td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-3 py-4 text-sm">
                         +{lead.phone}
                     </td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-3 py-4 text-sm">
                         {lead.country}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 text-sm">
+                        <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-medium">
+                          {lead.leadQuality || 'N/A'}
+                        </span>
+                    </td>
+                    <td className="px-3 py-4">
                         {getStatusBadge(lead.currentStatus)}
                     </td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-3 py-4 text-sm">
                         <span className={`font-medium ${getTeamColor(lead.forwardedTo || 'Not assigned')}`}>
                           {lead.forwardedTo || 'Not assigned'}
                         </span>
                     </td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-3 py-4 text-sm">
                         {lead.dateTime ? new Date(lead.dateTime).toLocaleString('en-US', {
                           weekday: 'short',
                           year: 'numeric',
@@ -327,7 +353,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                           hour12: true
                         }) : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-3 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                             <a
                               href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
@@ -367,7 +393,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                 ))
               ) : (
                 <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
+                    <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
                         No leads found matching your criteria.
                     </td>
                 </tr>
@@ -435,6 +461,12 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                 <div className="flex justify-between">
                   <span className="text-slate-500">Location:</span>
                   <span>{lead.place}, {lead.country}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Quality:</span>
+                  <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-medium">
+                    {lead.leadQuality || 'N/A'}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500">Status:</span>
