@@ -13,19 +13,19 @@ interface QuickLinksProps {
 
 export const QuickLinks: React.FC<QuickLinksProps> = ({ isAdminMode }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [links, setLinks] = useState<QuickLink[]>(() => {
-    const saved = localStorage.getItem('quickLinks');
-    return saved ? JSON.parse(saved) : [
-      { id: '1', name: 'Google Sheets', url: 'https://docs.google.com/spreadsheets/d/1J-XAPbm9FaY5YdcI8id6g0EfgKzmp4xJzMJ7VdPLZaA/edit' },
-      { id: '2', name: 'WhatsApp Web', url: 'https://web.whatsapp.com' }
-    ];
-  });
+  const [links, setLinks] = useState<QuickLink[]>([
+    { id: '1', name: 'Google Sheets', url: 'https://docs.google.com/spreadsheets/d/1J-XAPbm9FaY5YdcI8id6g0EfgKzmp4xJzMJ7VdPLZaA/edit' },
+    { id: '2', name: 'WhatsApp Web', url: 'https://web.whatsapp.com' },
+    { id: '3', name: 'Gmail', url: 'https://mail.google.com' },
+    { id: '4', name: 'Google Drive', url: 'https://drive.google.com' }
+  ]);
   const [editMode, setEditMode] = useState(false);
   const [newLink, setNewLink] = useState({ name: '', url: '' });
 
   const saveLinks = (updatedLinks: QuickLink[]) => {
     setLinks(updatedLinks);
-    localStorage.setItem('quickLinks', JSON.stringify(updatedLinks));
+    // Note: Links are dynamically managed in component state
+    console.log('Updated links:', updatedLinks);
   };
 
   const addLink = () => {
