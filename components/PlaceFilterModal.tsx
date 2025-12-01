@@ -1,6 +1,7 @@
 import React from 'react';
 import { Lead } from '../types';
 import { X, MapPin } from 'lucide-react';
+import { countByCaseInsensitive } from '../utils/caseInsensitiveUtils';
 
 interface PlaceFilterModalProps {
   isOpen: boolean;
@@ -17,13 +18,7 @@ export const PlaceFilterModal: React.FC<PlaceFilterModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const placeStats = leads.reduce((acc, lead) => {
-    if (lead.place) {
-      const trimmedPlace = lead.place.trim();
-      acc[trimmedPlace] = (acc[trimmedPlace] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const placeStats = countByCaseInsensitive(leads.filter(l => l.place), l => l.place);
 
   const sortedPlaces = Object.entries(placeStats)
     .sort(([,a], [,b]) => b - a);

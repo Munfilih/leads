@@ -1,6 +1,7 @@
 import React from 'react';
 import { Lead } from '../types';
 import { X, Award } from 'lucide-react';
+import { countByCaseInsensitive } from '../utils/caseInsensitiveUtils';
 
 interface StatusFilterModalProps {
   isOpen: boolean;
@@ -17,13 +18,7 @@ export const StatusFilterModal: React.FC<StatusFilterModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const statusStats = leads.reduce((acc, lead) => {
-    if (lead.currentStatus) {
-      const trimmedStatus = lead.currentStatus.trim();
-      acc[trimmedStatus] = (acc[trimmedStatus] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const statusStats = countByCaseInsensitive(leads.filter(l => l.currentStatus), l => l.currentStatus.toString());
 
   const sortedStatuses = Object.entries(statusStats)
     .sort(([,a], [,b]) => b - a);

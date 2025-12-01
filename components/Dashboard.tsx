@@ -8,6 +8,7 @@ import { TeamFilterModal } from './TeamFilterModal';
 import { StatusFilterModal } from './StatusFilterModal';
 import { HourFilterModal } from './HourFilterModal';
 import { PendingFilterModal } from './PendingFilterModal';
+import { countByCaseInsensitive } from '../utils/caseInsensitiveUtils';
 
 
 interface DashboardProps {
@@ -54,25 +55,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
   }).length;
 
   // Top countries
-  const countryStats = leads.reduce((acc, lead) => {
-    if (lead.country) {
-      const trimmedCountry = lead.country.trim();
-      acc[trimmedCountry] = (acc[trimmedCountry] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const countryStats = countByCaseInsensitive(leads.filter(l => l.country), l => l.country);
   const topCountries = Object.entries(countryStats)
     .sort(([,a], [,b]) => b - a)
     .slice(0, 5);
 
   // Industry distribution
-  const industryStats = leads.reduce((acc, lead) => {
-    if (lead.businessIndustry) {
-      const trimmedIndustry = lead.businessIndustry.trim();
-      acc[trimmedIndustry] = (acc[trimmedIndustry] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const industryStats = countByCaseInsensitive(leads.filter(l => l.businessIndustry), l => l.businessIndustry);
   const topIndustries = Object.entries(industryStats)
     .sort(([,a], [,b]) => b - a)
     .slice(0, 5);
@@ -166,13 +155,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
           </h3>
           <div className="space-y-3">
             {(() => {
-              const statusStats = leads.reduce((acc, lead) => {
-                if (lead.currentStatus) {
-                  const trimmedStatus = lead.currentStatus.toString().trim().toUpperCase();
-                  acc[trimmedStatus] = (acc[trimmedStatus] || 0) + 1;
-                }
-                return acc;
-              }, {} as Record<string, number>);
+              const statusStats = countByCaseInsensitive(leads.filter(l => l.currentStatus), l => l.currentStatus.toString());
               
               console.log('Status stats:', statusStats);
               
@@ -217,13 +200,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
           </h3>
           <div className="space-y-3">
             {(() => {
-              const placeStats = leads.reduce((acc, lead) => {
-                if (lead.place) {
-                  const trimmedPlace = lead.place.trim();
-                  acc[trimmedPlace] = (acc[trimmedPlace] || 0) + 1;
-                }
-                return acc;
-              }, {} as Record<string, number>);
+              const placeStats = countByCaseInsensitive(leads.filter(l => l.place), l => l.place);
               const topPlaces = Object.entries(placeStats)
                 .sort(([,a], [,b]) => b - a)
                 .slice(0, 5);
@@ -291,13 +268,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
           </h3>
           <div className="space-y-3">
             {(() => {
-              const qualityStats = leads.reduce((acc, lead) => {
-                if (lead.leadQuality) {
-                  const trimmedQuality = lead.leadQuality.trim();
-                  acc[trimmedQuality] = (acc[trimmedQuality] || 0) + 1;
-                }
-                return acc;
-              }, {} as Record<string, number>);
+              const qualityStats = countByCaseInsensitive(leads.filter(l => l.leadQuality), l => l.leadQuality);
               
               return Object.entries(qualityStats)
                 .filter(([, count]) => count > 0)

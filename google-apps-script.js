@@ -186,7 +186,7 @@ function doPost(e) {
       settingsSheet = ss.insertSheet('Settings');
       settingsSheet.getRange('A1:B1').setValues([['Type', 'Value']]);
       settingsSheet.getRange('A2:B6').setValues([
-        ['leadQuality', 'Genuine'],
+        ['leadQuality', 'GENUINE'],
         ['leadQuality', 'WARM'],
         ['leadQuality', 'COLD'],
         ['leadQuality', 'FAKE'],

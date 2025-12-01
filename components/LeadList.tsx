@@ -3,6 +3,7 @@ import { Lead, LeadCategory, LeadStatus } from '../types';
 import { Search, Filter, MoreVertical, Edit, Plus, Trash2, MessageCircle, Forward } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { LeadEditModal } from './LeadEditModal';
+import { normalizeText } from '../utils/caseInsensitiveUtils';
 
 interface LeadListProps {
   leads: Lead[];
@@ -58,9 +59,9 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                           (lead.slNo || '').toString().includes(searchTerm);
       const matchesStatus = statusFilter ? true : (localStatusFilter === 'ALL' || lead.currentStatus === localStatusFilter);
       const matchesSheet = sheetFilter === 'ALL' || lead.forwardedTo === sheetFilter || (sheetFilter === 'Unassigned' && !lead.forwardedTo);
-      const matchesPlace = !placeFilter || (lead.place || '').toLowerCase().trim() === placeFilter.toLowerCase().trim();
-      const matchesCountry = !countryFilter || (lead.country || '').toLowerCase().trim() === countryFilter.toLowerCase().trim();
-      const matchesQuality = !qualityFilter || (lead.leadQuality || '').toString().toLowerCase().trim() === qualityFilter.toLowerCase().trim();
+      const matchesPlace = !placeFilter || normalizeText(lead.place || '') === normalizeText(placeFilter);
+      const matchesCountry = !countryFilter || normalizeText(lead.country || '') === normalizeText(countryFilter);
+      const matchesQuality = !qualityFilter || normalizeText(lead.leadQuality?.toString() || '') === normalizeText(qualityFilter);
       const matchesPending = !pendingFilter || (!lead.forwardedTo || lead.forwardedTo.trim() === '');
       const matchesTeam = !teamFilter || (() => {
         if (teamFilter === 'forwarded') {
@@ -69,10 +70,10 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
         if (teamFilter === 'removed') {
           return lead.currentStatus === 'LOST' || lead.currentStatus === 'SPAM' || (lead.forwardedTo && lead.forwardedTo.toLowerCase() === 'removed');
         }
-        return lead.forwardedTo && lead.forwardedTo.toLowerCase().trim() === teamFilter.toLowerCase().trim();
+        return lead.forwardedTo && normalizeText(lead.forwardedTo) === normalizeText(teamFilter);
       })();
 
-      const matchesStatusFilter = !statusFilter || (lead.currentStatus || '').trim() === statusFilter.trim();
+      const matchesStatusFilter = !statusFilter || normalizeText(lead.currentStatus?.toString() || '') === normalizeText(statusFilter);
       const matchesHour = !hourFilter || (() => {
         if (!lead.dateTime) return false;
         const hour = new Date(lead.dateTime.trim()).getHours();

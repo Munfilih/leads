@@ -1,6 +1,7 @@
 import React from 'react';
 import { Lead } from '../types';
 import { X, Target } from 'lucide-react';
+import { countByCaseInsensitive } from '../utils/caseInsensitiveUtils';
 
 interface QualityFilterModalProps {
   isOpen: boolean;
@@ -17,13 +18,7 @@ export const QualityFilterModal: React.FC<QualityFilterModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const qualityStats = leads.reduce((acc, lead) => {
-    if (lead.leadQuality) {
-      const trimmedQuality = lead.leadQuality.toString().trim();
-      acc[trimmedQuality] = (acc[trimmedQuality] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const qualityStats = countByCaseInsensitive(leads.filter(l => l.leadQuality), l => l.leadQuality.toString());
 
   const sortedQualities = Object.entries(qualityStats)
     .sort(([,a], [,b]) => b - a);

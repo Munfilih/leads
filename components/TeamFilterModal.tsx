@@ -1,6 +1,7 @@
 import React from 'react';
 import { Lead } from '../types';
 import { X, UserCheck } from 'lucide-react';
+import { countByCaseInsensitive } from '../utils/caseInsensitiveUtils';
 
 interface TeamFilterModalProps {
   isOpen: boolean;
@@ -17,13 +18,10 @@ export const TeamFilterModal: React.FC<TeamFilterModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const teamStats = leads.reduce((acc, lead) => {
-    if (lead.forwardedTo && lead.forwardedTo.trim() && lead.forwardedTo.toLowerCase() !== 'removed') {
-      const team = lead.forwardedTo.trim();
-      acc[team] = (acc[team] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const teamStats = countByCaseInsensitive(
+    leads.filter(l => l.forwardedTo && l.forwardedTo.trim() && l.forwardedTo.toLowerCase() !== 'removed'), 
+    l => l.forwardedTo
+  );
 
   const sortedTeams = Object.entries(teamStats)
     .sort(([,a], [,b]) => b - a);

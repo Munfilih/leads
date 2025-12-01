@@ -303,7 +303,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave, leads }) => {
                 onKeyDown={(e) => handleKeyDown(e, industryRef)}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
-                {(leadQualities || ['Genuine', 'WARM', 'COLD', 'FAKE', 'UNCATEGORIZED']).map(c => (
+                {(leadQualities || ['GENUINE', 'WARM', 'COLD', 'FAKE', 'UNCATEGORIZED']).map(c => (
                     <option key={c} value={c}>{c}</option>
                 ))}
             </select>

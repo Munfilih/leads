@@ -1,6 +1,7 @@
 import React from 'react';
 import { Lead } from '../types';
 import { X, Building } from 'lucide-react';
+import { countByCaseInsensitive } from '../utils/caseInsensitiveUtils';
 
 interface CountryFilterModalProps {
   isOpen: boolean;
@@ -17,13 +18,7 @@ export const CountryFilterModal: React.FC<CountryFilterModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const countryStats = leads.reduce((acc, lead) => {
-    if (lead.country) {
-      const trimmedCountry = lead.country.trim();
-      acc[trimmedCountry] = (acc[trimmedCountry] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const countryStats = countByCaseInsensitive(leads.filter(l => l.country), l => l.country);
 
   const sortedCountries = Object.entries(countryStats)
     .sort(([,a], [,b]) => b - a);
