@@ -99,8 +99,30 @@ function doPost(e) {
       e.parameter.dateTime
     ];
     
-    // Update or insert in "All leads" sheet
+    // Check if this is an update (existing UID) and get old forwardedTo value
     const allLeadsSheet = ss.getSheetByName('All leads');
+    let oldForwardedTo = null;
+    if (allLeadsSheet) {
+      const allLeadsData_range = allLeadsSheet.getDataRange();
+      const allLeadsValues = allLeadsData_range.getValues();
+      for (let i = 1; i < allLeadsValues.length; i++) {
+        if (allLeadsValues[i][0] === uid) {
+          oldForwardedTo = allLeadsValues[i][10]; // Column K (forwardedTo)
+          break;
+        }
+      }
+    }
+    
+    // Remove from old target sheet if forwardedTo changed
+    if (oldForwardedTo && oldForwardedTo !== e.parameter.forwardedTo && oldForwardedTo !== 'All leads' && oldForwardedTo !== '') {
+      const oldTargetSheet = ss.getSheetByName(oldForwardedTo);
+      if (oldTargetSheet) {
+        deleteRowByUid(oldTargetSheet, uid);
+        renumberSlNumbers(oldTargetSheet);
+      }
+    }
+    
+    // Update or insert in "All leads" sheet
     if (allLeadsSheet) {
       updateOrInsertRow(allLeadsSheet, uid, allLeadsData);
     }
