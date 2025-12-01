@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { LeadList } from './components/LeadList';
-
 import { Settings } from './components/Settings';
 import { LeadForm } from './components/LeadForm';
 import { LeadDetailModal } from './components/LeadDetailModal';
@@ -145,24 +144,7 @@ const AppContent: React.FC = () => {
       
       <main className="overflow-y-auto relative">
         <div className={activeTab === 'sheets' && isAdminMode ? 'p-0' : 'p-8'}>
-          {activeTab === 'leads' && (
-            <header className="flex justify-between items-center mb-8">
-              <div>
-                 <h1 className="text-2xl font-bold text-slate-800">
-                  Leads
-                </h1>
-              </div>
-              <div className="flex gap-3">
-                <button 
-                  onClick={loadLeads}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm text-sm font-medium"
-                >
-                  <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-                  Sync Sheets
-                </button>
-              </div>
-            </header>
-          )}
+
 
           {isLoading ? (
             <div className="flex items-center justify-center h-96">

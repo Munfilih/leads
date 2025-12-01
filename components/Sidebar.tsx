@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, Users, Settings, Database, Plus, Menu, X } from 'lucide-react';
+import { QuickLinks } from './QuickLinks';
 
 interface SidebarProps {
   activeTab: string;
@@ -38,22 +39,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isAdm
         </div>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-1">
-          {navItems.filter(item => isAdminMode || (item.id !== 'form' && item.id !== 'sheets' && item.id !== 'settings')).map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
-                activeTab === item.id
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <item.icon size={18} />
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
+        <div className="hidden md:flex items-center space-x-4">
+          <nav className="flex space-x-1">
+            {navItems.filter(item => isAdminMode || (item.id !== 'form' && item.id !== 'sheets' && item.id !== 'settings')).map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium ${
+                  activeTab === item.id
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+              >
+                <item.icon size={18} />
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+          <QuickLinks isAdminMode={isAdminMode} />
+        </div>
 
         {/* Mobile Hamburger Menu */}
         <button
