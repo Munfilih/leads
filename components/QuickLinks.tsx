@@ -44,10 +44,10 @@ export const QuickLinks: React.FC<QuickLinksProps> = ({ isAdminMode }) => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm text-sm font-medium"
+        className="p-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm"
+        title="Quick Links"
       >
-        <Link size={16} />
-        Quick Links
+        <Link size={18} />
       </button>
 
       {isOpen && (
