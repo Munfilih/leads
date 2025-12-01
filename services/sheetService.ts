@@ -166,6 +166,7 @@ const mapStatus = (statusStr: string): LeadStatus => {
   if (s.includes('LOST')) return LeadStatus.LOST;
   if (s.includes('QUAL')) return LeadStatus.QUALIFIED;
   if (s.includes('CONT')) return LeadStatus.CONTACTED;
+  if (s.includes('WAITING') || s.includes('WAIT')) return LeadStatus.WAITING_LIST;
   if (s.includes('SPAM')) return LeadStatus.SPAM;
   return LeadStatus.NEW;
 };
