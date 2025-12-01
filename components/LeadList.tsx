@@ -37,7 +37,10 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
   const [filter, setFilter] = useState('');
   const [localStatusFilter, setLocalStatusFilter] = useState<LeadStatus | 'ALL'>('ALL');
   const [sheetFilter, setSheetFilter] = useState<string>('ALL');
-  const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>('newest');
+  const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>(() => {
+    const saved = localStorage.getItem('leadSortOrder');
+    return (saved as 'oldest' | 'newest') || 'newest';
+  });
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; leadId: string; leadName: string }>({ isOpen: false, leadId: '', leadName: '' });
 
   const filteredLeads = leads.filter(lead => {
@@ -121,6 +124,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
       [LeadStatus.NEW]: 'bg-indigo-100 text-indigo-700',
       [LeadStatus.CONTACTED]: 'bg-blue-100 text-blue-700',
       [LeadStatus.QUALIFIED]: 'bg-emerald-100 text-emerald-700',
+      [LeadStatus.WAITING_LIST]: 'bg-purple-100 text-purple-700',
       [LeadStatus.WON]: 'bg-amber-100 text-amber-700',
       [LeadStatus.LOST]: 'bg-slate-100 text-slate-700',
       [LeadStatus.SPAM]: 'bg-red-100 text-red-700',
@@ -302,7 +306,11 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
             <select
                 className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2"
                 value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as 'oldest' | 'newest')}
+                onChange={(e) => {
+                  const newOrder = e.target.value as 'oldest' | 'newest';
+                  setSortOrder(newOrder);
+                  localStorage.setItem('leadSortOrder', newOrder);
+                }}
             >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>

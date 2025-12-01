@@ -2,6 +2,7 @@ export enum LeadStatus {
   NEW = 'NEW',
   CONTACTED = 'CONTACTED',
   QUALIFIED = 'QUALIFIED',
+  WAITING_LIST = 'WAITING LIST',
   LOST = 'LOST',
   WON = 'WON',
   SPAM = 'SPAM'
