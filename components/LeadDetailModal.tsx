@@ -1,13 +1,16 @@
 import React from 'react';
 import { Lead } from '../types';
-import { X, Phone, MapPin, User, Calendar, Building, FileText, Target, Forward, MessageCircle } from 'lucide-react';
+import { X, Phone, MapPin, User, Calendar, Building, FileText, Target, Forward, MessageCircle, Edit, Trash2 } from 'lucide-react';
 
 interface LeadDetailModalProps {
   lead: Lead;
   onClose: () => void;
+  isAdminMode?: boolean;
+  onEdit?: (lead: Lead) => void;
+  onDelete?: (leadId: string) => void;
 }
 
-export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose }) => {
+export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose, isAdminMode, onEdit, onDelete }) => {
   if (!lead) {
     return null;
   }
@@ -122,15 +125,56 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({ lead, onClose 
         </div>
         
         <div className="px-6 pb-6">
-          <a
-            href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-          >
-            <MessageCircle size={20} />
-            Chat on WhatsApp
-          </a>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mb-6"></div>
+          <div className="flex items-center justify-center gap-4">
+            <a
+              href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-12 h-12 rounded-full bg-green-100 hover:bg-green-200 flex items-center justify-center text-green-600 hover:text-green-700 transition-all duration-200 shadow-sm hover:shadow-md"
+              title="Open WhatsApp"
+            >
+              <MessageCircle size={20} />
+            </a>
+            <button 
+              onClick={() => {
+                const details = `Customer Name: ${lead.name || ''}
+Mobile number: ${lead.phone}
+Place: ${lead.place}
+Business: ${lead.businessIndustry}`;
+                navigator.clipboard.writeText(details).catch(() => {
+                  const textArea = document.createElement('textarea');
+                  textArea.value = details;
+                  document.body.appendChild(textArea);
+                  textArea.select();
+                  document.execCommand('copy');
+                  document.body.removeChild(textArea);
+                });
+              }}
+              className="w-12 h-12 rounded-full bg-blue-100 hover:bg-blue-200 flex items-center justify-center text-blue-600 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
+              title="Copy Details"
+            >
+              <Forward size={20} />
+            </button>
+            {isAdminMode && onEdit && (
+              <button 
+                onClick={() => onEdit(lead)}
+                className="w-12 h-12 rounded-full bg-indigo-100 hover:bg-indigo-200 flex items-center justify-center text-indigo-600 hover:text-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md"
+                title="Edit Lead"
+              >
+                <Edit size={20} />
+              </button>
+            )}
+            {isAdminMode && onDelete && (
+              <button 
+                onClick={() => onDelete(lead.id)}
+                className="w-12 h-12 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-600 hover:text-red-700 transition-all duration-200 shadow-sm hover:shadow-md"
+                title="Delete Lead"
+              >
+                <Trash2 size={20} />
+              </button>
+            )}
+          </div>
         </div>
 
       </div>

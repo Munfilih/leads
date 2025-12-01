@@ -261,7 +261,10 @@ const AppContent: React.FC = () => {
       {selectedLead && (
         <LeadDetailModal 
           lead={selectedLead} 
-          onClose={() => setSelectedLead(null)} 
+          onClose={() => setSelectedLead(null)}
+          isAdminMode={isAdminMode}
+          onEdit={isAdminMode ? setEditingLead : undefined}
+          onDelete={isAdminMode ? handleDeleteLead : undefined}
         />
       )}
       

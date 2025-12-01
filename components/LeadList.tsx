@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Lead, LeadCategory, LeadStatus } from '../types';
-import { Search, Filter, MoreVertical, Edit, Plus, Trash2, MessageCircle } from 'lucide-react';
+import { Search, Filter, MoreVertical, Edit, Plus, Trash2, MessageCircle, Forward } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { LeadEditModal } from './LeadEditModal';
 
@@ -145,6 +145,25 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
         [LeadCategory.UNCATEGORIZED]: 'bg-slate-300',
     };
     return <div className={`w-2.5 h-2.5 rounded-full ${colors[cat]}`} title={cat} />;
+  };
+
+  const copyLeadDetails = (lead: Lead) => {
+    const details = `Customer Name: ${lead.name || ''}
+Mobile number: ${lead.phone}
+Place: ${lead.place}
+Business: ${lead.businessIndustry}`;
+    
+    navigator.clipboard.writeText(details).then(() => {
+      // Could add a toast notification here
+    }).catch(() => {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = details;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    });
   };
 
   const getTeamColor = (teamName: string) => {
@@ -400,6 +419,16 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                             >
                               <MessageCircle size={16} />
                             </a>
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    copyLeadDetails(lead);
+                                }}
+                                className="text-slate-400 hover:text-blue-600 transition-colors"
+                                title="Copy Details"
+                            >
+                                <Forward size={16} />
+                            </button>
 
                             {onEditLead && (
                                 <button 
@@ -464,6 +493,16 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                   >
                     <MessageCircle size={16} />
                   </a>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyLeadDetails(lead);
+                    }}
+                    className="text-slate-400 hover:text-blue-600 transition-colors"
+                    title="Copy Details"
+                  >
+                    <Forward size={16} />
+                  </button>
 
                   {onEditLead && (
                     <button 
