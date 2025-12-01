@@ -424,7 +424,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
               const dayLeads = leads.filter(lead => {
                 if (!lead.dateTime) return false;
                 const leadDate = new Date(lead.dateTime);
-                return leadDate.toDateString() === date.toDateString();
+                const targetDate = new Date(date);
+                
+                // Reset time to midnight for accurate date comparison
+                leadDate.setHours(0, 0, 0, 0);
+                targetDate.setHours(0, 0, 0, 0);
+                
+                return leadDate.getTime() === targetDate.getTime();
               });
               
               return {
@@ -441,7 +447,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
               <div className="flex items-end justify-between h-full gap-2">
                 {dailyStats.map((day, index) => {
                   const currentDate = last7Days[index];
-                  const dateString = currentDate.toISOString().split('T')[0];
+                  const dateString = currentDate.getFullYear() + '-' + 
+                    String(currentDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(currentDate.getDate()).padStart(2, '0');
                   return (
                     <div 
                       key={index} 

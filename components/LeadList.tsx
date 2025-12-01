@@ -104,8 +104,11 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
       })();
       const matchesDate = !dateFilter || (() => {
         if (!lead.dateTime) return false;
-        const leadDate = new Date(lead.dateTime).toISOString().split('T')[0];
-        return leadDate === dateFilter;
+        const leadDate = new Date(lead.dateTime);
+        const leadDateStr = leadDate.getFullYear() + '-' + 
+          String(leadDate.getMonth() + 1).padStart(2, '0') + '-' + 
+          String(leadDate.getDate()).padStart(2, '0');
+        return leadDateStr === dateFilter;
       })();
       return matchesText && matchesStatus && matchesSheet && matchesPlace && matchesCountry && matchesQuality && matchesTeam && matchesStatusFilter && matchesHour && matchesPending && matchesDate;
     } catch (error) {
