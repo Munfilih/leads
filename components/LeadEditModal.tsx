@@ -62,7 +62,11 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
   };
 
   const handleSave = () => {
-    onSave(formData);
+    // Ensure phone number starts with + if it exists
+    const phoneWithPlus = formData.phone && !formData.phone.startsWith('+') ? `+${formData.phone}` : formData.phone;
+    const leadToSave = { ...formData, phone: phoneWithPlus };
+    
+    onSave(leadToSave);
     // Don't close modal automatically
   };
 

@@ -8,6 +8,7 @@ import { LeadForm } from './components/LeadForm';
 import { LeadDetailModal } from './components/LeadDetailModal';
 import { LeadEditModal } from './components/LeadEditModal';
 import { Notification } from './components/Notification';
+
 import { SettingsProvider } from './contexts/SettingsContext';
 import { fetchLeadsFromSheet, saveLeadToSheet, deleteLeadFromSheet, getSheetNames } from './services/sheetService';
 import { Lead, LeadStatus, LeadCategory } from './types';
@@ -31,6 +32,7 @@ const AppContent: React.FC = () => {
   const [pendingFilter, setPendingFilter] = useState<boolean>(false);
   const [dateFilter, setDateFilter] = useState<string>('');
 
+
   // Auto-switch to dashboard when admin mode is disabled
   React.useEffect(() => {
     if (!isAdminMode && (activeTab === 'form' || activeTab === 'sheets' || activeTab === 'settings')) {
@@ -43,6 +45,8 @@ const AppContent: React.FC = () => {
     loadLeads();
     loadSheetNames();
   }, []);
+
+
 
   const loadSheetNames = async () => {
     try {
@@ -121,6 +125,8 @@ const AppContent: React.FC = () => {
       // Update UI immediately
       setLeads(prev => prev.filter(l => l.id !== leadId));
       
+
+      
       // Delete from sheet in background
       const success = await deleteLeadFromSheet(lead.uid);
       if (success) {
@@ -147,13 +153,13 @@ const AppContent: React.FC = () => {
                 </h1>
               </div>
               <div className="flex gap-3">
-                 <button 
+                <button 
                   onClick={loadLeads}
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-all shadow-sm text-sm font-medium"
-                 >
-                   <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-                   Sync Sheets
-                 </button>
+                >
+                  <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+                  Sync Sheets
+                </button>
               </div>
             </header>
           )}
@@ -268,6 +274,7 @@ const AppContent: React.FC = () => {
           onClose={() => setNotification(null)}
         />
       )}
+
     </div>
   );
 };

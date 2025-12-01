@@ -111,8 +111,10 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave, leads }) => {
     }
     setDuplicateError('');
     
-    // Ensure phone number starts with +
-    const phoneWithPlus = formData.phone.startsWith('+') ? formData.phone : `+${formData.phone}`;
+    // Ensure phone number starts with + if it exists
+    console.log('Original phone:', formData.phone);
+    const phoneWithPlus = formData.phone && !formData.phone.startsWith('+') ? `+${formData.phone}` : formData.phone;
+    console.log('Phone with plus:', phoneWithPlus);
     
     // Auto-generate SL No if empty
     const maxSlNo = leads.reduce((max, lead) => {
@@ -122,6 +124,7 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave, leads }) => {
     const slNo = formData.slNo || (maxSlNo + 1).toString();
     
     const leadToSave = { ...formData, phone: phoneWithPlus, slNo };
+    console.log('Lead to save:', leadToSave);
     
     onSave(leadToSave);
     // Reset form

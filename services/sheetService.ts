@@ -70,7 +70,8 @@ export const saveLeadToSheet = async (lead: Lead): Promise<boolean> => {
     formData.append('uid', lead.uid);
     formData.append('dateTime', lead.dateTime);
     formData.append('slNo', lead.slNo);
-    formData.append('phone', lead.phone);
+    console.log('Sending phone to script:', lead.phone);
+    formData.append('phone', "'" + lead.phone); // Add apostrophe to force text format
     formData.append('country', lead.country);
     formData.append('place', lead.place);
     formData.append('name', lead.name);
@@ -123,6 +124,8 @@ export const deleteLeadFromSheet = async (uid: string): Promise<boolean> => {
     return false;
   }
 };
+
+
 
 const parseCSV = (csvText: string): Lead[] => {
   const lines = csvText.split('\n').filter(line => line.trim());

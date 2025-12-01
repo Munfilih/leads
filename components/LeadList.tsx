@@ -389,7 +389,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                         }) : 'N/A'}
                     </td>
                     <td className="px-3 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-6">
                             <a
                               href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
                               target="_blank"
@@ -400,6 +400,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                             >
                               <MessageCircle size={16} />
                             </a>
+
                             {onEditLead && (
                                 <button 
                                     onClick={(e) => {
@@ -452,7 +453,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                   {getCategoryDot(lead.leadQuality)}
                   <h3 className="font-semibold text-slate-900">#{lead.slNo || 'N/A'} {lead.name || 'N/A'}</h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-6">
                   <a
                     href={`https://wa.me/${String(lead.phone || '').replace(/[^0-9]/g, '')}`}
                     target="_blank"
@@ -463,6 +464,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                   >
                     <MessageCircle size={16} />
                   </a>
+
                   {onEditLead && (
                     <button 
                       onClick={(e) => {
