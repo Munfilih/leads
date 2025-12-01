@@ -88,6 +88,31 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const handleSaveLeadWithoutClosing = async (updatedLead: Lead) => {
+    // Update UI immediately
+    setLeads(prev => {
+      const existing = prev.find(l => l.id === updatedLead.id);
+      if (existing) {
+        return prev.map(l => l.id === updatedLead.id ? updatedLead : l);
+      } else {
+        return [...prev, updatedLead];
+      }
+    });
+    
+    // DON'T close modal - keep it open
+    
+    // Save to sheet in background
+    const success = await saveLeadToSheet(updatedLead);
+    
+    if (success) {
+      setNotification({ message: 'Lead saved successfully!', type: 'success' });
+    } else {
+      setNotification({ message: 'Failed to save lead. Please try again.', type: 'error' });
+      // Reload data on failure
+      loadLeads();
+    }
+  };
+
 
 
   const handleDeleteLead = async (leadId: string) => {
@@ -139,7 +164,7 @@ const AppContent: React.FC = () => {
             </div>
           ) : (
             <>
-              {activeTab === 'form' && isAdminMode && <LeadForm onSave={handleUpdateLead} />}
+              {activeTab === 'form' && isAdminMode && <LeadForm onSave={handleUpdateLead} leads={leads} />}
               {activeTab === 'dashboard' && (
                 <Dashboard 
                   leads={leads} 
@@ -213,7 +238,7 @@ const AppContent: React.FC = () => {
                   }} 
                 />
               )}
-              {activeTab === 'leads' && <LeadList leads={leads} onSelectLead={setSelectedLead} onEditLead={isAdminMode ? setEditingLead : undefined} onDeleteLead={isAdminMode ? handleDeleteLead : undefined} sheetNames={sheetNames} placeFilter={placeFilter} onClearPlaceFilter={() => setPlaceFilter('')} countryFilter={countryFilter} onClearCountryFilter={() => setCountryFilter('')} qualityFilter={qualityFilter} onClearQualityFilter={() => setQualityFilter('')} teamFilter={teamFilter} onClearTeamFilter={() => setTeamFilter('')} statusFilter={statusFilter} onClearStatusFilter={() => setStatusFilter('')} hourFilter={hourFilter} onClearHourFilter={() => setHourFilter('')} pendingFilter={pendingFilter} onClearPendingFilter={() => setPendingFilter(false)} dateFilter={dateFilter} onClearDateFilter={() => setDateFilter('')} />}
+              {activeTab === 'leads' && <LeadList leads={leads} onSelectLead={setSelectedLead} onEditLead={isAdminMode ? setEditingLead : undefined} onDeleteLead={isAdminMode ? handleDeleteLead : undefined} sheetNames={sheetNames} placeFilter={placeFilter} onClearPlaceFilter={() => setPlaceFilter('')} countryFilter={countryFilter} onClearCountryFilter={() => setCountryFilter('')} qualityFilter={qualityFilter} onClearQualityFilter={() => setQualityFilter('')} teamFilter={teamFilter} onClearTeamFilter={() => setTeamFilter('')} statusFilter={statusFilter} onClearStatusFilter={() => setStatusFilter('')} hourFilter={hourFilter} onClearHourFilter={() => setHourFilter('')} pendingFilter={pendingFilter} onClearPendingFilter={() => setPendingFilter(false)} dateFilter={dateFilter} onClearDateFilter={() => setDateFilter('')} editingLead={editingLead} onSaveLead={handleSaveLeadWithoutClosing} onCloseEdit={() => setEditingLead(null)} onNavigateEdit={setEditingLead} />}
               {activeTab === 'settings' && isAdminMode && <Settings />}
               {activeTab === 'sheets' && isAdminMode && (
                 <iframe 
@@ -234,13 +259,7 @@ const AppContent: React.FC = () => {
         />
       )}
       
-      {editingLead && (
-        <LeadEditModal 
-          lead={editingLead} 
-          onClose={() => setEditingLead(null)}
-          onSave={handleUpdateLead}
-        />
-      )}
+
       
       {notification && (
         <Notification 

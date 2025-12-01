@@ -8,9 +8,13 @@ interface LeadEditModalProps {
   lead: Lead;
   onClose: () => void;
   onSave: (lead: Lead) => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
 }
 
-export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onSave }) => {
+export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onSave, onNext, onPrevious, hasNext, hasPrevious }) => {
   const { leadQualities, businessIndustries } = useSettings();
   const [formData, setFormData] = useState<Lead>({
     ...lead,
@@ -34,6 +38,24 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
     loadSheetNames();
   }, []);
 
+  useEffect(() => {
+    // Update formData when lead changes (for navigation)
+    setFormData({
+      ...lead,
+      dateTime: lead.dateTime ? (() => {
+        const date = new Date(lead.dateTime);
+        const offset = date.getTimezoneOffset() * 60000;
+        const localDate = new Date(date.getTime() - offset);
+        return localDate.toISOString().slice(0, 16);
+      })() : (() => {
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        const localNow = new Date(now.getTime() - offset);
+        return localNow.toISOString().slice(0, 16);
+      })()
+    });
+  }, [lead]);
+
   const loadSheetNames = async () => {
     const sheets = await getSheetNames();
     setSheetNames(sheets);
@@ -41,14 +63,34 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
 
   const handleSave = () => {
     onSave(formData);
-    onClose();
+    // Don't close modal automatically
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-slate-200">
-          <h2 className="text-xl font-bold text-slate-800">Edit Lead</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-slate-800">Edit Lead</h2>
+            <div className="flex gap-2">
+              {hasPrevious && (
+                <button
+                  onClick={onPrevious}
+                  className="px-3 py-1 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 transition-colors text-sm"
+                >
+                  ← Previous
+                </button>
+              )}
+              {hasNext && (
+                <button
+                  onClick={onNext}
+                  className="px-3 py-1 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 transition-colors text-sm"
+                >
+                  Next →
+                </button>
+              )}
+            </div>
+          </div>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 transition-colors"

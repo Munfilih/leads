@@ -7,20 +7,34 @@ interface HourFilterModalProps {
   onClose: () => void;
   leads: Lead[];
   onSelectHour: (hour: string) => void;
+  hourGrouping?: 1 | 3 | 6 | 12;
 }
 
 export const HourFilterModal: React.FC<HourFilterModalProps> = ({ 
   isOpen, 
   onClose, 
   leads, 
-  onSelectHour 
+  onSelectHour,
+  hourGrouping = 1
 }) => {
   if (!isOpen) return null;
+
+  console.log('HourFilterModal hourGrouping:', hourGrouping);
 
   const hourStats = leads.reduce((acc, lead) => {
     if (lead.dateTime && lead.dateTime.trim()) {
       const hour = new Date(lead.dateTime.trim()).getHours();
-      const timeRange = `${hour.toString().padStart(2, '0')}:00 - ${(hour + 1).toString().padStart(2, '0')}:00`;
+      const groupedHour = Math.floor(hour / hourGrouping) * hourGrouping;
+      
+      const formatHour = (h: number) => {
+        const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+        const ampm = h < 12 ? 'AM' : 'PM';
+        return `${hour12}:00 ${ampm}`;
+      };
+      
+      const endHour = groupedHour + hourGrouping;
+      const timeRange = `${formatHour(groupedHour)} - ${formatHour(endHour % 24)}`;
+      
       acc[timeRange] = (acc[timeRange] || 0) + 1;
     }
     return acc;

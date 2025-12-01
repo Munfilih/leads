@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Lead, LeadCategory, LeadStatus } from '../types';
 import { Search, Filter, MoreVertical, Edit, Plus, Trash2, MessageCircle } from 'lucide-react';
 import { ConfirmationModal } from './ConfirmationModal';
+import { LeadEditModal } from './LeadEditModal';
 
 interface LeadListProps {
   leads: Lead[];
   onSelectLead: (lead: Lead) => void;
   onEditLead?: (lead: Lead) => void;
+  onNavigateEdit?: (lead: Lead) => void;
   onAddLead?: () => void;
   onDeleteLead?: (leadId: string) => void;
   sheetNames?: string[];
@@ -26,13 +28,16 @@ interface LeadListProps {
   onClearPendingFilter?: () => void;
   dateFilter?: string;
   onClearDateFilter?: () => void;
+  editingLead?: Lead | null;
+  onSaveLead?: (lead: Lead) => void;
+  onCloseEdit?: () => void;
 }
 
-export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditLead, onAddLead, onDeleteLead, sheetNames = [], placeFilter, onClearPlaceFilter, countryFilter, onClearCountryFilter, qualityFilter, onClearQualityFilter, teamFilter, onClearTeamFilter, statusFilter, onClearStatusFilter, hourFilter, onClearHourFilter, pendingFilter, onClearPendingFilter, dateFilter, onClearDateFilter }) => {
+export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditLead, onAddLead, onDeleteLead, sheetNames = [], placeFilter, onClearPlaceFilter, countryFilter, onClearCountryFilter, qualityFilter, onClearQualityFilter, teamFilter, onClearTeamFilter, statusFilter, onClearStatusFilter, hourFilter, onClearHourFilter, pendingFilter, onClearPendingFilter, dateFilter, onClearDateFilter, editingLead, onSaveLead, onCloseEdit, onNavigateEdit }) => {
   const [filter, setFilter] = useState('');
   const [localStatusFilter, setLocalStatusFilter] = useState<LeadStatus | 'ALL'>('ALL');
   const [sheetFilter, setSheetFilter] = useState<string>('ALL');
-  const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>('oldest');
+  const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>('newest');
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; leadId: string; leadName: string }>({ isOpen: false, leadId: '', leadName: '' });
 
   const filteredLeads = leads.filter(lead => {
@@ -68,6 +73,28 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
       const matchesHour = !hourFilter || (() => {
         if (!lead.dateTime) return false;
         const hour = new Date(lead.dateTime.trim()).getHours();
+        
+        // Parse the hourFilter which is now in AM/PM format like "12:00 AM - 3:00 AM"
+        if (hourFilter.includes('AM') || hourFilter.includes('PM')) {
+          const [startStr, endStr] = hourFilter.split(' - ');
+          const parseTime = (timeStr: string) => {
+            const [time, period] = timeStr.split(' ');
+            let hour = parseInt(time.split(':')[0]);
+            if (period === 'AM' && hour === 12) hour = 0;
+            if (period === 'PM' && hour !== 12) hour += 12;
+            return hour;
+          };
+          
+          const startHour = parseTime(startStr);
+          const endHour = parseTime(endStr);
+          
+          if (endHour === 0) { // Handle midnight case
+            return hour >= startHour || hour < 24;
+          }
+          return hour >= startHour && hour < endHour;
+        }
+        
+        // Fallback for old format
         const timeRange = `${hour.toString().padStart(2, '0')}:00 - ${(hour + 1).toString().padStart(2, '0')}:00`;
         return timeRange === hourFilter;
       })();
@@ -277,8 +304,8 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as 'oldest' | 'newest')}
             >
-                <option value="oldest">Oldest First</option>
                 <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
             </select>
             {onAddLead && (
               <button
@@ -324,7 +351,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
                         {lead.name || 'N/A'}
                     </td>
                     <td className="px-3 py-4 text-sm">
-                        +{lead.phone}
+                        {lead.phone}
                     </td>
                     <td className="px-3 py-4 text-sm">
                         {lead.country}
@@ -456,7 +483,7 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Phone:</span>
-                  <span className="font-medium">+{lead.phone}</span>
+                  <span className="font-medium">{lead.phone}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Location:</span>
@@ -516,6 +543,34 @@ export const LeadList: React.FC<LeadListProps> = ({ leads, onSelectLead, onEditL
         }}
         onCancel={() => setDeleteConfirm({ isOpen: false, leadId: '', leadName: '' })}
       />
+      
+      {editingLead && onSaveLead && onCloseEdit && (
+        <LeadEditModal 
+          lead={editingLead} 
+          onClose={onCloseEdit}
+          onSave={onSaveLead}
+          onNext={() => {
+            const currentIndex = filteredLeads.findIndex(l => l.id === editingLead.id);
+            if (currentIndex < filteredLeads.length - 1 && onNavigateEdit) {
+              onNavigateEdit(filteredLeads[currentIndex + 1]);
+            }
+          }}
+          onPrevious={() => {
+            const currentIndex = filteredLeads.findIndex(l => l.id === editingLead.id);
+            if (currentIndex > 0 && onNavigateEdit) {
+              onNavigateEdit(filteredLeads[currentIndex - 1]);
+            }
+          }}
+          hasNext={(() => {
+            const currentIndex = filteredLeads.findIndex(l => l.id === editingLead.id);
+            return currentIndex < filteredLeads.length - 1;
+          })()}
+          hasPrevious={(() => {
+            const currentIndex = filteredLeads.findIndex(l => l.id === editingLead.id);
+            return currentIndex > 0;
+          })()}
+        />
+      )}
     </div>
   );
 };

@@ -32,6 +32,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showHourModal, setShowHourModal] = useState(false);
+  const [hourGrouping, setHourGrouping] = useState<1 | 3 | 6 | 12>(1);
   const stats = {
     total: leads.length,
     new: leads.filter(l => l.currentStatus === LeadStatus.NEW).length,
@@ -164,42 +165,40 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
             Lead Pipeline
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-700">New</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-slate-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{width: `${stats.total > 0 ? (stats.new/stats.total)*100 : 0}%`}}></div>
-                </div>
-                <span className="text-sm font-bold text-slate-900 w-8">{stats.new}</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-700">Contacted</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-slate-200 rounded-full h-2">
-                  <div className="bg-yellow-500 h-2 rounded-full" style={{width: `${stats.total > 0 ? (stats.contacted/stats.total)*100 : 0}%`}}></div>
-                </div>
-                <span className="text-sm font-bold text-slate-900 w-8">{stats.contacted}</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-700">Qualified</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-slate-200 rounded-full h-2">
-                  <div className="bg-orange-500 h-2 rounded-full" style={{width: `${stats.total > 0 ? (stats.qualified/stats.total)*100 : 0}%`}}></div>
-                </div>
-                <span className="text-sm font-bold text-slate-900 w-8">{stats.qualified}</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-700">Won</span>
-              <div className="flex items-center gap-2">
-                <div className="w-16 bg-slate-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{width: `${stats.total > 0 ? (stats.won/stats.total)*100 : 0}%`}}></div>
-                </div>
-                <span className="text-sm font-bold text-slate-900 w-8">{stats.won}</span>
-              </div>
-            </div>
+            {(() => {
+              const statusStats = leads.reduce((acc, lead) => {
+                if (lead.currentStatus) {
+                  const trimmedStatus = lead.currentStatus.toString().trim().toUpperCase();
+                  acc[trimmedStatus] = (acc[trimmedStatus] || 0) + 1;
+                }
+                return acc;
+              }, {} as Record<string, number>);
+              
+              console.log('Status stats:', statusStats);
+              
+              const statusColors: Record<string, string> = {
+                'NEW': 'bg-blue-500',
+                'CONTACTED': 'bg-yellow-500',
+                'QUALIFIED': 'bg-orange-500',
+                'WON': 'bg-green-500',
+                'LOST': 'bg-red-500',
+                'SPAM': 'bg-gray-500'
+              };
+              
+              return Object.entries(statusStats)
+                .sort(([,a], [,b]) => b - a)
+                .map(([status, count]) => (
+                  <div key={status} className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-slate-700">{status}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 bg-slate-200 rounded-full h-2">
+                        <div className={`${statusColors[status] || 'bg-slate-500'} h-2 rounded-full`} style={{width: `${stats.total > 0 ? (count/stats.total)*100 : 0}%`}}></div>
+                      </div>
+                      <span className="text-sm font-bold text-slate-900 w-8">{count}</span>
+                    </div>
+                  </div>
+                ));
+            })()}
           </div>
         </div>
 
@@ -319,16 +318,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
             setShowHourModal(true);
           }}
         >
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            Peak Engagement Hours
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              Peak Engagement Hours
+            </h3>
+            <select
+              value={hourGrouping}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => {
+                e.stopPropagation();
+                setHourGrouping(parseInt(e.target.value) as 1 | 3 | 6 | 12);
+              }}
+              className="text-xs border border-slate-300 rounded px-2 py-1"
+            >
+              <option value={1}>Hourly</option>
+              <option value={3}>3 Hours</option>
+              <option value={6}>6 Hours</option>
+              <option value={12}>12 Hours</option>
+            </select>
+          </div>
           <div className="space-y-3">
             {(() => {
               const hourStats = leads.reduce((acc, lead) => {
                 if (lead.dateTime && lead.dateTime.trim()) {
                   const hour = new Date(lead.dateTime.trim()).getHours();
-                  acc[hour] = (acc[hour] || 0) + 1;
+                  const groupedHour = Math.floor(hour / hourGrouping) * hourGrouping;
+                  acc[groupedHour] = (acc[groupedHour] || 0) + 1;
                 }
                 return acc;
               }, {} as Record<number, number>);
@@ -336,11 +352,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
               const topHours = Object.entries(hourStats)
                 .sort(([,a], [,b]) => b - a)
                 .slice(0, 6)
-                .map(([hour, count]) => ({
-                  hour: parseInt(hour),
-                  count,
-                  timeRange: `${hour.padStart(2, '0')}:00 - ${(parseInt(hour) + 1).toString().padStart(2, '0')}:00`
-                }));
+                .map(([hour, count]) => {
+                  const startHour = parseInt(hour);
+                  const endHour = startHour + hourGrouping;
+                  
+                  const formatHour = (h: number) => {
+                    const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                    const ampm = h < 12 ? 'AM' : 'PM';
+                    return `${hour12}:00 ${ampm}`;
+                  };
+                  
+                  const timeRange = `${formatHour(startHour)} - ${formatHour(endHour % 24)}`;
+                  
+                  return {
+                    hour: startHour,
+                    count,
+                    timeRange
+                  };
+                });
 
               return topHours.length > 0 ? topHours.map(({hour, count, timeRange}) => (
                 <div key={hour} className="flex items-center justify-between">
@@ -522,6 +551,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
         onClose={() => setShowHourModal(false)}
         leads={leads}
         onSelectHour={(hour) => onFilterByHour && onFilterByHour(hour)}
+        hourGrouping={hourGrouping}
       />
       
 
