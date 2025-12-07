@@ -218,7 +218,6 @@ export const LeadForm: React.FC<LeadFormProps> = ({ onSave, leads }) => {
                 }
               }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Enter mobile number"
               className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${duplicateError ? 'border-red-500' : 'border-slate-300'}`}
             />

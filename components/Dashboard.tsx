@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Lead, LeadStatus, LeadCategory } from '../types';
 import { Users, UserCheck, AlertTriangle, TrendingUp, MapPin, Building, Award, Clock, Target } from 'lucide-react';
 import { PlaceFilterModal } from './PlaceFilterModal';
@@ -27,6 +27,7 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, onFilterByCountry, onFilterByQuality, onFilterByTeam, onFilterByStatus, onFilterByHour, onFilterByDate, onFilterTotal, onFilterPending, onFilterForwarded, onFilterRemoved }) => {
+  const chartScrollRef = useRef<HTMLDivElement>(null);
   const [showPlaceModal, setShowPlaceModal] = useState(false);
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [showQualityModal, setShowQualityModal] = useState(false);
@@ -69,6 +70,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
   const forwardRate = stats.total > 0 ? ((stats.forwarded / stats.total) * 100).toFixed(1) : '0';
   const removedRate = stats.total > 0 ? ((stats.removed / stats.total) * 100).toFixed(1) : '0';
   const pendingRate = stats.total > 0 ? ((stats.pending / stats.total) * 100).toFixed(1) : '0';
+
+  useEffect(() => {
+    if (chartScrollRef.current) {
+      chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth;
+    }
+  }, [leads]);
 
   return (
     <div className="space-y-6">
@@ -412,11 +419,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
       {/* Day-wise Leads Graph */}
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
         <h3 className="text-lg font-semibold text-slate-800 mb-4">Daily Leads Trend</h3>
-        <div className="h-64">
+        <div ref={chartScrollRef} className="h-64 overflow-x-auto">
           {(() => {
-            const last7Days = Array.from({length: 7}, (_, i) => {
+            const last7Days = Array.from({length: 30}, (_, i) => {
               const date = new Date();
-              date.setDate(date.getDate() - (6 - i));
+              date.setDate(date.getDate() - (29 - i));
               return date;
             });
             
@@ -444,7 +451,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ leads, onFilterByPlace, on
             const maxCount = Math.max(...dailyStats.map(d => d.total), 1);
             
             return (
-              <div className="flex items-end justify-between h-full gap-2">
+              <div className="flex items-end justify-between h-full gap-2 min-w-max">
                 {dailyStats.map((day, index) => {
                   const currentDate = last7Days[index];
                   const dateString = currentDate.getFullYear() + '-' + 
