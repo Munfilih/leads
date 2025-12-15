@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, Users, Settings, Database, Plus, Menu, X } from 'lucide-react';
-import { QuickLinks } from './QuickLinks';
 
 interface SidebarProps {
   activeTab: string;
@@ -56,12 +55,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isAdm
               </button>
             ))}
           </nav>
-          <QuickLinks isAdminMode={isAdminMode} />
         </div>
 
         {/* Mobile Actions */}
         <div className="md:hidden flex items-center space-x-2">
-          <QuickLinks isAdminMode={isAdminMode} />
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-2 text-slate-600 hover:text-slate-900 transition-colors"
