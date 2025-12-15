@@ -31,6 +31,9 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
     })()
   });
   const [sheetNames, setSheetNames] = useState<string[]>([]);
+  const [isSaved, setIsSaved] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const phoneRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -54,6 +57,9 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
         return localNow.toISOString().slice(0, 16);
       })()
     });
+    setIsSaved(false);
+    setHasChanges(false);
+    setIsLoading(false);
   }, [lead]);
 
   const loadSheetNames = async () => {
@@ -62,12 +68,34 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
   };
 
   const handleSave = () => {
+    setIsLoading(true);
+    
     // Ensure phone number starts with + if it exists
     const phoneWithPlus = formData.phone && !formData.phone.startsWith('+') ? `+${formData.phone}` : formData.phone;
     const leadToSave = { ...formData, phone: phoneWithPlus };
     
     onSave(leadToSave);
-    // Don't close modal automatically
+    
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsSaved(true);
+      setHasChanges(false);
+    }, 500);
+  };
+
+  const handleFormChange = (newData: Partial<Lead>) => {
+    setFormData({...formData, ...newData});
+    setIsSaved(false);
+    setHasChanges(true);
+    setIsLoading(false);
+  };
+
+  const handleNavigation = (navFunction?: () => void) => {
+    if (navFunction) {
+      navFunction();
+      setIsSaved(false);
+      setHasChanges(false);
+    }
   };
 
   return (
@@ -79,7 +107,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
             <div className="flex gap-2">
               {hasPrevious && (
                 <button
-                  onClick={onPrevious}
+                  onClick={() => handleNavigation(onPrevious)}
                   className="px-3 py-1 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 transition-colors text-sm"
                 >
                   ← Previous
@@ -87,7 +115,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               )}
               {hasNext && (
                 <button
-                  onClick={onNext}
+                  onClick={() => handleNavigation(onNext)}
                   className="px-3 py-1 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 transition-colors text-sm"
                 >
                   Next →
@@ -109,7 +137,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
             <input
               type="datetime-local"
               value={formData.dateTime}
-              onChange={(e) => setFormData({...formData, dateTime: e.target.value})}
+              onChange={(e) => handleFormChange({dateTime: e.target.value})}
               className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
@@ -121,7 +149,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
                 ref={phoneRef}
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                onChange={(e) => handleFormChange({phone: e.target.value})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
@@ -131,7 +159,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => handleFormChange({name: e.target.value})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
@@ -141,7 +169,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               <input
                 type="text"
                 value={formData.country}
-                onChange={(e) => setFormData({...formData, country: e.target.value})}
+                onChange={(e) => handleFormChange({country: e.target.value})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
@@ -151,7 +179,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               <input
                 type="text"
                 value={formData.place}
-                onChange={(e) => setFormData({...formData, place: e.target.value})}
+                onChange={(e) => handleFormChange({place: e.target.value})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
@@ -160,7 +188,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               <label className="block text-sm font-medium text-slate-700 mb-2">Lead Quality</label>
               <select 
                 value={formData.leadQuality || ''}
-                onChange={(e) => setFormData({...formData, leadQuality: e.target.value})}
+                onChange={(e) => handleFormChange({leadQuality: e.target.value})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 {(() => {
@@ -180,7 +208,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               <label className="block text-sm font-medium text-slate-700 mb-2">Business Industry</label>
               <select
                 value={formData.businessIndustry}
-                onChange={(e) => setFormData({...formData, businessIndustry: e.target.value})}
+                onChange={(e) => handleFormChange({businessIndustry: e.target.value})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">Select industry...</option>
@@ -194,7 +222,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               <label className="block text-sm font-medium text-slate-700 mb-2">Current Status</label>
               <select 
                 value={formData.currentStatus}
-                onChange={(e) => setFormData({...formData, currentStatus: e.target.value as LeadStatus})}
+                onChange={(e) => handleFormChange({currentStatus: e.target.value as LeadStatus})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 {Object.values(LeadStatus).map(s => (
@@ -207,7 +235,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
               <label className="block text-sm font-medium text-slate-700 mb-2">Forwarded to</label>
               <select
                 value={formData.forwardedTo}
-                onChange={(e) => setFormData({...formData, forwardedTo: e.target.value})}
+                onChange={(e) => handleFormChange({forwardedTo: e.target.value})}
                 className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">Select sheet...</option>
@@ -222,7 +250,7 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
             <label className="block text-sm font-medium text-slate-700 mb-2">Special Notes</label>
             <textarea
               value={formData.specialNotes}
-              onChange={(e) => setFormData({...formData, specialNotes: e.target.value})}
+              onChange={(e) => handleFormChange({specialNotes: e.target.value})}
               rows={3}
               className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
             />
@@ -236,12 +264,27 @@ export const LeadEditModal: React.FC<LeadEditModalProps> = ({ lead, onClose, onS
           >
             Cancel
           </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            Save Changes
-          </button>
+          {isLoading ? (
+            <div className="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              Saving...
+            </div>
+          ) : isSaved && !hasChanges ? (
+            <div className="px-4 py-2 bg-green-600 text-white rounded-lg flex items-center gap-2">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              Saved
+            </div>
+          ) : (
+            <button
+              onClick={handleSave}
+              disabled={isLoading}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            >
+              Save Changes
+            </button>
+          )}
         </div>
       </div>
     </div>
